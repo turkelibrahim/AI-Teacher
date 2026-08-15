@@ -57,9 +57,18 @@ class Settings(BaseSettings):
             return []
         return [origin.strip() for origin in self.CORS_ALLOWED_ORIGINS.split(",") if origin.strip()]
 
+    
+    # Resource Settings
+    RESOURCE_BUCKET_NAME: str = "ai-teacher-resources"
+    MAX_UPLOAD_SIZE_MB: int = 50
+    PRESIGNED_URL_EXPIRE_SECONDS: int = 3600
+    ALLOWED_UPLOAD_EXTENSIONS: list[str] = [".pdf", ".docx", ".pptx", ".txt", ".md"]
+
     model_config = SettingsConfigDict(env_file=(".env", "../../.env"), env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()
+
+
 
 
 

@@ -12,20 +12,33 @@ SYSTEM_ROLES = {
         "organization.members.read",
         "organization.members.invite",
         "organization.members.remove",
-        "organization.roles.manage"
+        "organization.roles.manage",
+        "resource.upload",
+        "resource.read",
+        "resource.download",
+        "resource.delete"
     ],
     "ADMIN": [
         "organization.read",
         "organization.update",
         "organization.members.read",
-        "organization.members.invite"
+        "organization.members.invite",
+        "resource.upload",
+        "resource.read",
+        "resource.download",
+        "resource.delete"
     ],
     "INSTRUCTOR": [
         "organization.read",
-        "organization.members.read"
+        "organization.members.read",
+        "resource.upload",
+        "resource.read",
+        "resource.download"
     ],
     "MEMBER": [
-        "organization.read"
+        "organization.read",
+        "resource.read",
+        "resource.download"
     ]
 }
 
@@ -87,3 +100,4 @@ async def seed_rbac():
 
 if __name__ == "__main__":
     asyncio.run(seed_rbac())
+

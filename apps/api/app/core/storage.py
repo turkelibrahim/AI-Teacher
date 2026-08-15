@@ -1,4 +1,4 @@
-from minio import Minio
+﻿from minio import Minio
 from app.core.config import settings
 import asyncio
 
@@ -31,6 +31,15 @@ class ObjectStorage:
             content_type=content_type
         )
 
+    async def get_presigned_url(self, object_name: str, expires_in: int = 3600):
+        from datetime import timedelta
+        return await self._run_in_executor(
+            self.client.presigned_get_object,
+            settings.S3_BUCKET,
+            object_name,
+            expires=timedelta(seconds=expires_in)
+        )
+
     async def get(self, object_name: str):
         return await self._run_in_executor(
             self.client.get_object,
@@ -57,3 +66,4 @@ storage_client = ObjectStorage()
 
 async def get_storage():
     return storage_client
+
