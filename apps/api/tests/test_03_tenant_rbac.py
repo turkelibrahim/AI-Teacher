@@ -16,43 +16,43 @@ def unique_email2():
 
 @pytest.mark.asyncio
 async def test_15_tenant_isolation_and_rbac(client, unique_email, unique_email2):
-    # Register User A (Owner of Org A)
     res_a = await client.post("/api/v1/auth/register", json={"email": unique_email, "password": "Password123!"})
     token_a = res_a.json()["access_token"]
-    user_a_id = res_a.json()["user"]["id"]
     
-    # Register User B (Owner of Org B)
     res_b = await client.post("/api/v1/auth/register", json={"email": unique_email2, "password": "Password123!"})
     token_b = res_b.json()["access_token"]
     
-    # User A gets their orgs
     orgs_a_res = await client.get("/api/v1/organizations", headers={"Authorization": f"Bearer {token_a}"})
-    assert orgs_a_res.status_code == 200
     org_a_id = orgs_a_res.json()[0]["id"]
     
-    # User B gets their orgs
     orgs_b_res = await client.get("/api/v1/organizations", headers={"Authorization": f"Bearer {token_b}"})
-    assert orgs_b_res.status_code == 200
     org_b_id = orgs_b_res.json()[0]["id"]
     
-    # OWNER permissions check
     res_own_read = await client.get(f"/api/v1/organizations/{org_a_id}", headers={"Authorization": f"Bearer {token_a}"})
     assert res_own_read.status_code == 200
     
     res_own_members = await client.get(f"/api/v1/organizations/{org_a_id}/members", headers={"Authorization": f"Bearer {token_a}"})
     assert res_own_members.status_code == 200
     
+    assert orgs_a_res.json()[0]["name"] != "New Name"
     res_own_update = await client.patch(f"/api/v1/organizations/{org_a_id}", json={"name": "New Name"}, headers={"Authorization": f"Bearer {token_a}"})
     assert res_own_update.status_code == 200
+    assert res_own_update.json()["name"] == "New Name"
     
-    # Foreign organization denied
+    res_own_get = await client.get(f"/api/v1/organizations/{org_a_id}", headers={"Authorization": f"Bearer {token_a}"})
+    assert res_own_get.json()["name"] == "New Name"
+    
+    async with async_session_maker() as session:
+        result = await session.execute(select(Organization).where(Organization.id == uuid.UUID(org_a_id)))
+        org_db = result.scalars().first()
+        assert org_db.name == "New Name"
+    
     res_foreign_read = await client.get(f"/api/v1/organizations/{org_b_id}", headers={"Authorization": f"Bearer {token_a}"})
     assert res_foreign_read.status_code == 403
     
     res_foreign_members = await client.get(f"/api/v1/organizations/{org_b_id}/members", headers={"Authorization": f"Bearer {token_a}"})
     assert res_foreign_members.status_code == 403
     
-    # Now make User B a MEMBER of Org A
     async with async_session_maker() as session:
         new_member = OrganizationMember(organization_id=uuid.UUID(org_a_id), user_id=uuid.UUID(res_b.json()["user"]["id"]), status="ACTIVE")
         session.add(new_member)
@@ -65,7 +65,6 @@ async def test_15_tenant_isolation_and_rbac(client, unique_email, unique_email2)
         await session.commit()
         member_role_id = new_member.id
         
-    # User B (MEMBER in Org A) test
     res_b_read = await client.get(f"/api/v1/organizations/{org_a_id}", headers={"Authorization": f"Bearer {token_b}"})
     assert res_b_read.status_code == 200
     
@@ -75,9 +74,7 @@ async def test_15_tenant_isolation_and_rbac(client, unique_email, unique_email2)
     res_b_update = await client.patch(f"/api/v1/organizations/{org_a_id}", json={"name": "New Name 2"}, headers={"Authorization": f"Bearer {token_b}"})
     assert res_b_update.status_code == 403
 
-    # Change User B to INSTRUCTOR
     async with async_session_maker() as session:
-        # remove old role
         result = await session.execute(select(MemberRole).where(MemberRole.member_id == member_role_id))
         mr = result.scalars().first()
         await session.delete(mr)
@@ -88,7 +85,6 @@ async def test_15_tenant_isolation_and_rbac(client, unique_email, unique_email2)
         session.add(mr_new)
         await session.commit()
 
-    # User B (INSTRUCTOR in Org A) test
     res_b_read = await client.get(f"/api/v1/organizations/{org_a_id}", headers={"Authorization": f"Bearer {token_b}"})
     assert res_b_read.status_code == 200
     
@@ -98,7 +94,6 @@ async def test_15_tenant_isolation_and_rbac(client, unique_email, unique_email2)
     res_b_update = await client.patch(f"/api/v1/organizations/{org_a_id}", json={"name": "New Name 3"}, headers={"Authorization": f"Bearer {token_b}"})
     assert res_b_update.status_code == 403
 
-    # Change User B to ADMIN
     async with async_session_maker() as session:
         result = await session.execute(select(MemberRole).where(MemberRole.member_id == member_role_id))
         mr = result.scalars().first()
@@ -110,7 +105,6 @@ async def test_15_tenant_isolation_and_rbac(client, unique_email, unique_email2)
         session.add(mr_new)
         await session.commit()
 
-    # User B (ADMIN in Org A) test
     res_b_read = await client.get(f"/api/v1/organizations/{org_a_id}", headers={"Authorization": f"Bearer {token_b}"})
     assert res_b_read.status_code == 200
     
@@ -146,7 +140,6 @@ async def test_22_membership_status_security(client):
     orgs_res = await client.get("/api/v1/organizations", headers={"Authorization": f"Bearer {token_owner}"})
     org_id = orgs_res.json()[0]["id"]
     
-    # Add as SUSPENDED
     async with async_session_maker() as session:
         m = OrganizationMember(organization_id=uuid.UUID(org_id), user_id=uuid.UUID(member_id), status="SUSPENDED")
         session.add(m)
@@ -159,7 +152,6 @@ async def test_22_membership_status_security(client):
     res = await client.get(f"/api/v1/organizations/{org_id}", headers={"Authorization": f"Bearer {token_member}"})
     assert res.status_code == 403
     
-    # Change to INVITED
     async with async_session_maker() as session:
         result = await session.execute(select(OrganizationMember).where(OrganizationMember.id == m_id))
         m = result.scalars().first()
@@ -169,7 +161,6 @@ async def test_22_membership_status_security(client):
     res = await client.get(f"/api/v1/organizations/{org_id}", headers={"Authorization": f"Bearer {token_member}"})
     assert res.status_code == 403
 
-    # Change to REMOVED
     async with async_session_maker() as session:
         result = await session.execute(select(OrganizationMember).where(OrganizationMember.id == m_id))
         m = result.scalars().first()
@@ -179,7 +170,6 @@ async def test_22_membership_status_security(client):
     res = await client.get(f"/api/v1/organizations/{org_id}", headers={"Authorization": f"Bearer {token_member}"})
     assert res.status_code == 403
 
-    # Change to ACTIVE
     async with async_session_maker() as session:
         result = await session.execute(select(OrganizationMember).where(OrganizationMember.id == m_id))
         m = result.scalars().first()

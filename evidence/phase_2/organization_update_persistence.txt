@@ -1,0 +1,2 @@
+﻿The organization PATCH endpoint in apps/api/app/modules/organization/router.py was replaced with a real implementation that modifies the object and calls session.commit().
+test_03_tenant_rbac.py now includes an explicit verification that asserts the updated name matches in the endpoint response, a subsequent GET response, and directly via SQLAlchemy session DB query.

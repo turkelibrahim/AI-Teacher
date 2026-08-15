@@ -1,0 +1,14 @@
+﻿1. ORGANIZATION UPDATE
+- Fake endpoint replaced with real SQLAlchemy repository persist.
+- Validated OWNER/ADMIN success and MEMBER/INSTRUCTOR 403 denial.
+- Tested and verified in pytest.
+
+2. JWT ROTATION
+- Generated new 32-byte cryptographically secure random token in python.
+- Replaced the token in .env using direct string match python script to avoid printing to console.
+- Removed default token from config.py to ensure production safety.
+
+3. STATUS DOCS
+- Rebuilt CURRENT_STATE.md with full context.
+- Rebuilt LATEST_HANDOFF.md with full context.
+- Restored TASK_QUEUE.md with exact roadmap.

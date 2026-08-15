@@ -7,6 +7,7 @@ from app.modules.organization.repository import OrganizationRepository
 from app.api.deps import get_current_active_user, RequireOrganizationPermission
 from app.modules.identity.models import User
 import uuid
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -49,7 +50,7 @@ async def get_organization_members(
         ))
     return response
 
-from pydantic import BaseModel
+
 class OrganizationUpdate(BaseModel):
     name: str
 
@@ -58,7 +59,10 @@ async def update_organization(
     organization_id: uuid.UUID,
     data: OrganizationUpdate,
     membership = Depends(RequireOrganizationPermission("organization.update")),
+    org_repo: OrganizationRepository = Depends(get_org_repo)
 ):
-    # Dummy update for RBAC test
-    return membership.organization
-
+    organization = membership.organization
+    organization.name = data.name
+    await org_repo.session.commit()
+    await org_repo.session.refresh(organization)
+    return organization
