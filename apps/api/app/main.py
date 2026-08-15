@@ -28,6 +28,7 @@ async def lifespan(app: FastAPI):
     storage = await get_storage()
     try:
         await storage.initialize()
+        await storage.initialize(settings.RESOURCE_BUCKET_NAME)
         logger.info("Object Storage initialized.")
     except Exception as e:
         logger.error(f"Failed to initialize Object Storage: {e}")
@@ -63,5 +64,6 @@ app.include_router(health_router)
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(org_router, prefix="/api/v1/organizations", tags=["Organizations"])
 app.include_router(resource_router, prefix="/api/v1/organizations/{organization_id}/resources", tags=["Resources"]) # also at root for easy access
+
 
 

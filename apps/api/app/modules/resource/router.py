@@ -56,7 +56,7 @@ async def download_resource(
     membership = Depends(RequireOrganizationPermission("resource.download")),
     service: ResourceService = Depends(get_resource_service)
 ):
-    url = await service.get_download_url(organization_id, resource_id)
+    url = await service.get_download_url(organization_id, resource_id, membership.user_id)
     from app.core.config import settings
     return PresignedUrlResponse(url=url, expires_in=settings.PRESIGNED_URL_EXPIRE_SECONDS)
 
@@ -67,4 +67,5 @@ async def delete_resource(
     membership = Depends(RequireOrganizationPermission("resource.delete")),
     service: ResourceService = Depends(get_resource_service)
 ):
-    await service.delete_resource(organization_id, resource_id)
+    await service.delete_resource(organization_id, resource_id, membership.user_id)
+

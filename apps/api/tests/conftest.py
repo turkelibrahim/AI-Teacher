@@ -13,6 +13,10 @@ def event_loop():
 
 @pytest_asyncio.fixture(scope="session")
 async def client():
+    from app.core.storage import get_storage
+    from app.core.config import settings
+    storage = await get_storage()
+    await storage.initialize(settings.RESOURCE_BUCKET_NAME)
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
         yield c
 
@@ -20,3 +24,4 @@ async def client():
 async def clear_redis():
     redis = await get_redis()
     await redis.flushdb()
+
