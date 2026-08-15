@@ -118,7 +118,7 @@
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "celery -A app.core.celery_app inspect ping"]
+      test: ["CMD-SHELL", "celery -A workers.app inspect ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -142,4 +142,5 @@ volumes:
   postgres_data:
   redis_data:
   minio_data:
+
 

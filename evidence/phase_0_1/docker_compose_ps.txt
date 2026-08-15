@@ -1,7 +1,7 @@
-NAME                    IMAGE                    COMMAND                  SERVICE    CREATED          STATUS                             PORTS
-ai-teacher-api-1        ai-teacher-api           "uvicorn app.main:ap…"   api        17 minutes ago   Up 17 minutes (healthy)            0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
-ai-teacher-minio-1      minio/minio              "/usr/bin/docker-ent…"   minio      23 minutes ago   Up 23 minutes (healthy)            0.0.0.0:9000-9001->9000-9001/tcp, [::]:9000-9001->9000-9001/tcp
-ai-teacher-postgres-1   ankane/pgvector:v0.5.1   "docker-entrypoint.s…"   postgres   23 minutes ago   Up 23 minutes (healthy)            0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp
-ai-teacher-redis-1      redis:7-alpine           "docker-entrypoint.s…"   redis      23 minutes ago   Up 23 minutes (healthy)            0.0.0.0:6379->6379/tcp, [::]:6379->6379/tcp
-ai-teacher-web-1        ai-teacher-web           "docker-entrypoint.s…"   web        27 seconds ago   Up 23 seconds (healthy)            0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp
-ai-teacher-worker-1     ai-teacher-worker        "celery -A workers.a…"   worker     27 seconds ago   Up 24 seconds (health: starting)   
+NAME                    IMAGE                    COMMAND                  SERVICE    CREATED          STATUS                    PORTS
+ai-teacher-api-1        ai-teacher-api           "uvicorn app.main:ap…"   api        18 minutes ago   Up 18 minutes (healthy)   0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+ai-teacher-minio-1      minio/minio              "/usr/bin/docker-ent…"   minio      25 minutes ago   Up 25 minutes (healthy)   0.0.0.0:9000-9001->9000-9001/tcp, [::]:9000-9001->9000-9001/tcp
+ai-teacher-postgres-1   ankane/pgvector:v0.5.1   "docker-entrypoint.s…"   postgres   25 minutes ago   Up 25 minutes (healthy)   0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp
+ai-teacher-redis-1      redis:7-alpine           "docker-entrypoint.s…"   redis      25 minutes ago   Up 25 minutes (healthy)   0.0.0.0:6379->6379/tcp, [::]:6379->6379/tcp
+ai-teacher-web-1        ai-teacher-web           "docker-entrypoint.s…"   web        2 minutes ago    Up 2 minutes (healthy)    0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp
+ai-teacher-worker-1     ai-teacher-worker        "celery -A workers.a…"   worker     33 seconds ago   Up 29 seconds (healthy)   
