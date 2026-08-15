@@ -1,0 +1,10 @@
+
+> web@0.1.0 lint
+> eslint
+
+
+C:\Projects\ai-teacher\apps\web\src\app\page.tsx
+  27:16  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (0 errors, 1 warning)
+

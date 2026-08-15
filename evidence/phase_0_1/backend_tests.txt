@@ -1,0 +1,10 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.16, pytest-8.2.0, pluggy-1.6.0
+rootdir: /app
+plugins: asyncio-0.23.6, anyio-4.14.2
+asyncio: mode=Mode.STRICT
+collected 2 items
+
+tests/test_health.py ..                                                  [100%]
+
+============================== 2 passed in 0.80s ===============================

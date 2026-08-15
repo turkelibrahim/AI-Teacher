@@ -1,0 +1,27 @@
+﻿
+Path                  
+----                  
+C:\Projects\ai-teacher
+
+
+
+
+    Directory: C:\Projects\ai-teacher
+
+
+Mode                 LastWriteTime         Length Name                                                                 
+----                 -------------         ------ ----                                                                 
+d-----        15.08.2026     15:19                .git                                                                 
+d-----        15.08.2026     15:18                apps                                                                 
+d-----        15.08.2026     15:18                docs                                                                 
+d-----        15.08.2026     15:18                evidence                                                             
+d-----        15.08.2026     15:18                infra                                                                
+d-----        15.08.2026     15:18                packages                                                             
+d-----        15.08.2026     15:18                scripts                                                              
+-a----        15.08.2026     15:03            726 .env                                                                 
+-a----        15.08.2026     15:03            726 .env.example                                                         
+-a----        15.08.2026     15:03            569 .gitignore                                                           
+-a----        15.08.2026     15:06           3565 docker-compose.yml                                                   
+-a----        15.08.2026     15:07           1234 README.md                                                            
+
+
