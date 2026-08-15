@@ -1,0 +1,64 @@
+﻿============================= test session starts ==============================
+platform linux -- Python 3.11.16, pytest-8.2.0, pluggy-1.6.0 -- /usr/local/bin/python3.11
+cachedir: .pytest_cache
+rootdir: /app
+plugins: asyncio-0.23.6, anyio-4.14.2
+asyncio: mode=Mode.STRICT
+collecting ... collected 22 items
+
+tests/test_01_auth_flow.py::test_01_valid_registration_and_db_models PASSED [  4%]
+tests/test_01_auth_flow.py::test_02_duplicate_email_fails PASSED         [  9%]
+tests/test_01_auth_flow.py::test_03_login_correct_credentials PASSED     [ 13%]
+tests/test_01_auth_flow.py::test_04_wrong_password PASSED                [ 18%]
+tests/test_01_auth_flow.py::test_05_nonexistent_user PASSED              [ 22%]
+tests/test_01_auth_flow.py::test_06_inactive_user PASSED                 [ 27%]
+tests/test_02_jwt_refresh.py::test_07_jwt_claims_and_valid_access PASSED [ 31%]
+tests/test_02_jwt_refresh.py::test_08_expired_token PASSED               [ 36%]
+tests/test_02_jwt_refresh.py::test_09_malformed_token PASSED             [ 40%]
+tests/test_02_jwt_refresh.py::test_10_wrong_token_type PASSED            [ 45%]
+tests/test_02_jwt_refresh.py::test_11_refresh_token_rotation_and_revocation PASSED [ 50%]
+tests/test_02_jwt_refresh.py::test_12_old_token_reuse_denied PASSED      [ 54%]
+tests/test_02_jwt_refresh.py::test_13_logout_revokes_refresh PASSED      [ 59%]
+tests/test_02_jwt_refresh.py::test_14_expired_refresh_denied PASSED      [ 63%]
+tests/test_03_tenant_rbac.py::test_15_tenant_isolation_and_rbac PASSED   [ 68%]
+tests/test_04_db_constraints.py::test_16_duplicate_normalized_email_constraint PASSED [ 72%]
+tests/test_04_db_constraints.py::test_17_duplicate_membership_constraint PASSED [ 77%]
+tests/test_04_db_constraints.py::test_18_duplicate_role_permission PASSED [ 81%]
+tests/test_05_rate_limit.py::test_19_brute_force_rate_limit PASSED       [ 86%]
+tests/test_06_audit_log.py::test_20_audit_log_security PASSED            [ 90%]
+tests/test_health.py::test_health_live PASSED                            [ 95%]
+tests/test_health.py::test_health_ready PASSED                           [100%]
+
+=============================== warnings summary ===============================
+app/core/config.py:47
+  /app/app/core/config.py:47: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    @validator("JWT_SECRET_KEY")
+
+../usr/local/lib/python3.11/site-packages/pydantic/_internal/_config.py:284
+../usr/local/lib/python3.11/site-packages/pydantic/_internal/_config.py:284
+../usr/local/lib/python3.11/site-packages/pydantic/_internal/_config.py:284
+  /usr/local/lib/python3.11/site-packages/pydantic/_internal/_config.py:284: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+../usr/local/lib/python3.11/site-packages/passlib/utils/__init__.py:854
+  /usr/local/lib/python3.11/site-packages/passlib/utils/__init__.py:854: DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
+    from crypt import crypt as _crypt
+
+tests/test_01_auth_flow.py::test_01_valid_registration_and_db_models
+  /usr/local/lib/python3.11/site-packages/pytest_asyncio/plugin.py:759: DeprecationWarning: The event_loop fixture provided by pytest-asyncio has been redefined in
+  /app/tests/conftest.py:8
+  Replacing the event_loop fixture with a custom implementation is deprecated
+  and will lead to errors in the future.
+  If you want to request an asyncio event loop with a scope other than function
+  scope, use the "scope" argument to the asyncio mark when marking the tests.
+  If you want to return different types of event loops, use the event_loop_policy
+  fixture.
+  
+    warnings.warn(
+
+tests/test_01_auth_flow.py::test_01_valid_registration_and_db_models
+  /usr/local/lib/python3.11/site-packages/passlib/handlers/argon2.py:716: DeprecationWarning: Accessing argon2.__version__ is deprecated and will be removed in a future release. Use importlib.metadata directly to query for structlog's packaging metadata.
+    _argon2_cffi.__version__, max_version)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 22 passed, 7 warnings in 1.68s ========================

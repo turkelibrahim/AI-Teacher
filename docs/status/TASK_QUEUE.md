@@ -1,10 +1,26 @@
-﻿# Task Queue
+﻿# TASK QUEUE
 
-| Phase | Description | Status |
-|---|---|---|
-| PHASE 0-1 | Foundation (Repository, API, Worker, Database, Cache, Storage, Frontend, Docker orchestration and verification) | VERIFIED_DONE |
-| PHASE 2 | Multi-tenant Identity, Authorization, and Database Foundation | READY |
-| PHASE 3 | RAG Document Upload & Processing Pipeline | BLOCKED |
-| PHASE 4 | Core LLM Lesson Engine Integration | BLOCKED |
-| PHASE 5 | STT/TTS and Realtime Audio | BLOCKED |
-| PHASE 6 | 3D Avatar/Video Integration | BLOCKED |
+## COMPLETED
+- [x] PHASE 0: FOUNDATION AND DOCKER COMPOSE SETUP
+- [x] PHASE 1: WORKSPACE RECONCILIATION AND HEALTH CHECKS
+
+## CURRENT
+- [ ] PHASE 2: MULTI-TENANT IDENTITY, AUTHENTICATION, AUTHORIZATION AND DATABASE FOUNDATION (IN_PROGRESS_SECURITY_REPAIR)
+
+## NEXT
+- [ ] PHASE 3: KNOWLEDGE BASE (RAG), DOCUMENT UPLOAD, MINIO INTEGRATION AND LLM ORCHESTRATION (BLOCKED_BY_PHASE_2)
+- [ ] PHASE 4: Ingestion (BLOCKED)
+- [ ] PHASE 5: RAG (BLOCKED)
+- [ ] PHASE 6: Text Tutor (BLOCKED)
+- [ ] PHASE 7: Lesson Engine (BLOCKED)
+- [ ] PHASE 8: AI Serving (BLOCKED)
+- [ ] PHASE 9: STT (BLOCKED)
+- [ ] PHASE 10: Barge-In (BLOCKED)
+- [ ] PHASE 11: TTS (BLOCKED)
+- [ ] PHASE 12: Resume (BLOCKED)
+- [ ] PHASE 13: Web Fallback (BLOCKED)
+- [ ] PHASE 14: Avatar (BLOCKED)
+- [ ] PHASE 15: Memory/Quiz (BLOCKED)
+- [ ] PHASE 16: Security (BLOCKED)
+- [ ] PHASE 17: Load Test (BLOCKED)
+- [ ] PHASE 18: Production (BLOCKED)

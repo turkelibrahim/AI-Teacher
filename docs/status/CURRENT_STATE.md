@@ -23,3 +23,5 @@
   - redis
   - minio
 - .env and docker-compose.yml are securely aligned.
+
+

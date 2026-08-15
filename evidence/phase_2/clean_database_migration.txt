@@ -1,0 +1,10 @@
+﻿docker : INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+At line:3 char:1
++ docker compose exec -e DATABASE_URL="postgresql+asyncpg://postgres:pa ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (INFO  [alembic....PostgresqlImpl.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 7e3c3d25a1e9, Initial phase 2 schemas
+INFO  [alembic.runtime.migration] Running upgrade 7e3c3d25a1e9 -> 2bbfa376d32e, Add missing phase 2 constraints
