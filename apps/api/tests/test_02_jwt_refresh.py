@@ -134,3 +134,13 @@ async def test_14_expired_refresh_denied(client, unique_email):
     refresh_res = await client.post("/api/v1/auth/refresh", json={"refresh_token": rt})
     assert refresh_res.status_code == 401
 
+
+@pytest.mark.asyncio
+async def test_24_unknown_user_jwt(client):
+    expire = datetime.now(timezone.utc) + timedelta(minutes=5)
+    # Valid UUID but unknown user
+    to_encode = {"exp": expire, "iat": datetime.now(timezone.utc), "sub": str(uuid.uuid4()), "type": "access", "jti": "123"}
+    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+    
+    me_res = await client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {encoded_jwt}"})
+    assert me_res.status_code == 401

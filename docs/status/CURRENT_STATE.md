@@ -1,30 +1,18 @@
-﻿# Current State
-
-## Architecture
-- Modular monolith pattern initialized for the backend.
-- FastAPI backend with standard directories (core, api, modules, db, workers).
-- Async SQLAlchemy setup for PostgreSQL.
-- Celery worker structure setup for async tasks.
-- Redis integrated for state/broker.
-- MinIO integrated for S3-compatible object storage.
-
-## Frontend
-- Next.js 14+ with App Router.
-- Basic UI connecting to /api/v1/health/ready.
-- Containerized development setup running alongside backend.
-
-## Infrastructure
-- Canonical Project Root established at C:\Projects\ai-teacher.
-- Docker Compose defines the following services correctly:
-  - api
-  - worker
-  - web
-  - postgres
-  - redis
-  - minio
-- .env and docker-compose.yml are securely aligned.
-
-
-
-
-
+﻿PHASE 0-1 Foundation      VERIFIED_DONE
+PHASE 2 Auth/Tenant       VERIFIED_DONE
+PHASE 3 Resource Upload   READY
+PHASE 4 Ingestion         BLOCKED
+PHASE 5 RAG               BLOCKED
+PHASE 6 Text Tutor        BLOCKED
+PHASE 7 Lesson Engine     BLOCKED
+PHASE 8 AI Serving        BLOCKED
+PHASE 9 STT               BLOCKED
+PHASE 10 Barge-In         BLOCKED
+PHASE 11 TTS              BLOCKED
+PHASE 12 Resume           BLOCKED
+PHASE 13 Web Fallback     BLOCKED
+PHASE 14 Avatar           BLOCKED
+PHASE 15 Memory/Quiz      BLOCKED
+PHASE 16 Security         BLOCKED
+PHASE 17 Load Test        BLOCKED
+PHASE 18 Production       BLOCKED

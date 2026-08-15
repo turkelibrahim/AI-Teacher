@@ -1,4 +1,4 @@
-import pytest
+﻿import pytest
 from httpx import AsyncClient
 import uuid
 from sqlalchemy.future import select
@@ -16,6 +16,7 @@ async def test_20_audit_log_security(client, unique_email):
     rt1 = res.json()["refresh_token"]
     user_id = res.json()["user"]["id"]
     
+    await client.post("/api/v1/auth/login", json={"email": unique_email, "password": "WrongPassword!"})
     await client.post("/api/v1/auth/login", json={"email": unique_email, "password": "Password123!"})
     
     res_refresh = await client.post("/api/v1/auth/refresh", json={"refresh_token": rt1})
@@ -34,6 +35,7 @@ async def test_20_audit_log_security(client, unique_email):
         events = [log.event_type for log in logs]
         assert "USER_REGISTERED" in events
         assert "USER_LOGIN_SUCCESS" in events
+        assert "USER_LOGIN_FAILED" in events
         assert "REFRESH_TOKEN_ROTATED" in events
         assert "USER_LOGOUT" in events
         assert "REFRESH_TOKEN_REUSED" in events
@@ -45,3 +47,5 @@ async def test_20_audit_log_security(client, unique_email):
                 assert "access_token" not in str(log.metadata_).lower()
                 assert rt1 not in str(log.metadata_)
                 assert rt2 not in str(log.metadata_)
+                assert "authorization" not in str(log.metadata_).lower()
+                assert "bearer" not in str(log.metadata_).lower()

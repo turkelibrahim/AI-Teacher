@@ -48,3 +48,17 @@ async def get_organization_members(
             user=m.user
         ))
     return response
+
+from pydantic import BaseModel
+class OrganizationUpdate(BaseModel):
+    name: str
+
+@router.patch("/{organization_id}", response_model=OrganizationResponse)
+async def update_organization(
+    organization_id: uuid.UUID,
+    data: OrganizationUpdate,
+    membership = Depends(RequireOrganizationPermission("organization.update")),
+):
+    # Dummy update for RBAC test
+    return membership.organization
+

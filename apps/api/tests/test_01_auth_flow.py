@@ -1,4 +1,4 @@
-import pytest
+﻿import pytest
 from httpx import AsyncClient
 import uuid
 from sqlalchemy.future import select
@@ -94,3 +94,4 @@ async def test_06_inactive_user(client, unique_email):
         
     res = await client.post("/api/v1/auth/login", json=payload)
     assert res.status_code == 401
+
