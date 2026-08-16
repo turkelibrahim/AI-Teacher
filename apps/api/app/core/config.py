@@ -64,9 +64,17 @@ class Settings(BaseSettings):
     PRESIGNED_URL_EXPIRE_SECONDS: int = 3600
     ALLOWED_UPLOAD_EXTENSIONS: list[str] = [".pdf", ".docx", ".pptx", ".txt", ".md"]
 
+    # Ingestion & Extraction Limits
+    MAX_INGESTION_PAGES: int = 1000
+    MAX_EXTRACTED_CHARACTERS: int = 5000000
+    MAX_OFFICE_ENTRIES: int = 10000
+    MAX_OFFICE_UNCOMPRESSED_BYTES: int = 50 * 1024 * 1024
+    MAX_SINGLE_ENTRY_UNCOMPRESSED_BYTES: int = 10 * 1024 * 1024
+
     model_config = SettingsConfigDict(env_file=(".env", "../../.env"), env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()
+
 
 
 

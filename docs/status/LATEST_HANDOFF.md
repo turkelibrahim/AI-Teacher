@@ -1,16 +1,14 @@
 ﻿# Latest Handoff Summary
 
-## Phase 3 Implementation Summary
-Phase 3 successfully established the secure resource upload and private object storage pipeline.
+## Phase 4 Implementation Summary
+Phase 4 successfully established the asynchronous document ingestion and text extraction pipeline.
 
-- **Testing**: 36/36 tests collected and passed, spanning unit, integration, and security matrices.
-- **Migration Verification**: A safe, idempotent Alembic migration properly restricted uploaded_by_user_id to NOT NULL along with a robust clean database round-trip validation.
-- **MinIO/Private Bucket Verification**: Confirmed that the i-teacher-resources bucket successfully denies anonymous access. Byte-equality validations demonstrated flawless streaming ingress and egress.
-- **Tenant Isolation**: Tests mathematically guarantee tenant boundaries via strict membership/user ID resolution tied directly to physical storage keys.
-- **File Validation**: Advanced python-magic and deep ZIP integrity scanning protects against disguised executable spoofing.
-- **Compensation Tests**: Deterministically forced MinIO failures and DB commit failures successfully fired rollback routines, avoiding orphaned objects or false DB entries.
-- **Git Commit**: a4504cb64079b3667ea5f79a9a9e5e3d6a527808
+- **Extraction Logic**: Extractor base interfaces and concrete PyPDF/TXT extractors implemented.
+- **Asynchronous Worker**: Implemented a robust background Celery task with proper native asyncio context, robust connection pooling, error recovery, and proper SQLAlchemy mapping.
+- **Resource Processing**: Implemented atomic transitions (QUEUED -> PROCESSING -> COMPLETED/FAILED) via the repository layer.
+- **Testing**: End-to-end integration test successfully verified: file upload, async background job submission, object storage retrieval, extraction persistence, and HTTP polling for job status.
+- **State Reliability**: Fixed critical greenlet asynchronous boundary issues, metadata loading order issues, and storage bucket scoping bugs. 37/37 Backend Tests now pass cleanly.
 
 ## Next Phase
-**NEXT_PHASE = Phase 4 Ingestion**
-*Note: Phase 4 includes document ingestion and text extraction pipelines, but explicitly does NOT include RAG (which belongs in Phase 5).*
+**NEXT_PHASE = Phase 5 RAG (Retrieval-Augmented Generation)**
+*Note: Phase 5 will introduce pgvector embeddings, text chunking, and semantic retrieval over the extracted documents.*

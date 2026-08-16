@@ -16,7 +16,9 @@ SYSTEM_ROLES = {
         "resource.upload",
         "resource.read",
         "resource.download",
-        "resource.delete"
+        "resource.delete",
+        "ingestion.start",
+        "ingestion.read"
     ],
     "ADMIN": [
         "organization.read",
@@ -26,19 +28,24 @@ SYSTEM_ROLES = {
         "resource.upload",
         "resource.read",
         "resource.download",
-        "resource.delete"
+        "resource.delete",
+        "ingestion.start",
+        "ingestion.read"
     ],
     "INSTRUCTOR": [
         "organization.read",
         "organization.members.read",
         "resource.upload",
         "resource.read",
-        "resource.download"
+        "resource.download",
+        "ingestion.start",
+        "ingestion.read"
     ],
     "MEMBER": [
         "organization.read",
         "resource.read",
-        "resource.download"
+        "resource.download",
+        "ingestion.read"
     ]
 }
 
@@ -100,4 +107,3 @@ async def seed_rbac():
 
 if __name__ == "__main__":
     asyncio.run(seed_rbac())
-

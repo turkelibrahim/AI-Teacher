@@ -1,10 +1,10 @@
-﻿# Task Queue / Roadmap
+# Task Queue / Roadmap
 
 - PHASE 0-1 Foundation       VERIFIED_DONE
 - PHASE 2 Auth/Tenant        VERIFIED_DONE
 - PHASE 3 Resource Upload    VERIFIED_DONE
-- PHASE 4 Ingestion          READY
-- PHASE 5 RAG                BLOCKED
+- PHASE 4 Ingestion          VERIFIED_DONE
+- PHASE 5 RAG                READY
 - PHASE 6 Text Tutor         BLOCKED
 - PHASE 7 Lesson Engine      BLOCKED
 - PHASE 8 AI Serving         BLOCKED
@@ -18,3 +18,5 @@
 - PHASE 16 Security          BLOCKED
 - PHASE 17 Load Test         BLOCKED
 - PHASE 18 Production        BLOCKED
+
+

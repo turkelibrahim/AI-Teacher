@@ -1,4 +1,4 @@
-﻿# Current State
+# Current State
 
 The AI Teacher platform has successfully established its core foundation and secure multi-tenant resource upload pipeline.
 
@@ -6,6 +6,7 @@ The AI Teacher platform has successfully established its core foundation and sec
 - **Phase 0-1 Foundation**: Complete Docker-based local development environment with PostgreSQL, Redis, MinIO, FastAPI, and Next.js, including fully healthy container orchestration.
 - **Phase 2 Authentication & Multi-Tenancy**: Complete RBAC (Role-Based Access Control) system, JWT authentication, user registration, role assignments, and strict tenant isolation.
 - **Phase 3 Resource Upload**: Secure document upload pipeline with deterministic storage and tracking.
+- **Phase 4 Ingestion**: Asynchronous document ingestion and text extraction pipeline using Celery, PyPDF, and native SQLAlchemy asyncio.
 
 ## System Capabilities
 - **Private MinIO Storage**: Dedicated internal object storage for resources (i-teacher-resources bucket), with all anonymous access strictly denied.
@@ -17,7 +18,8 @@ The AI Teacher platform has successfully established its core foundation and sec
 - **Fail-safe Compensation**: Dual-commit compensation mechanisms guaranteeing that DB metadata and physical storage remain completely synchronized.
 
 ## Quality Assurance
-- **36/36 Backend Tests**: Full pytest suite passing encompassing all unit and integration regression scenarios.
+- **37/37 Backend Tests**: Full pytest suite passing encompassing all unit and integration regression scenarios.
 
 ## Current Next Phase
-- **PHASE 4 Ingestion**: Document Ingestion and Text Extraction Pipeline.
+- **PHASE 5 RAG**: Retrieval-Augmented Generation (Embeddings and pgvector)
+

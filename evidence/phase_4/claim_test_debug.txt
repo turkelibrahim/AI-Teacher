@@ -1,0 +1,330 @@
+﻿============================= test session starts ==============================
+platform linux -- Python 3.11.16, pytest-8.2.0, pluggy-1.6.0
+rootdir: /app
+plugins: asyncio-0.23.6, anyio-4.14.2
+asyncio: mode=Mode.STRICT
+collected 1 item
+
+tests/test_06_ingestion_reliability.py F                                 [100%]
+
+=================================== FAILURES ===================================
+____________________ test_duplicate_execution_single_claim _____________________
+tests/test_06_ingestion_reliability.py:234: in test_duplicate_execution_single_claim
+    assert claims == 1, f"Exactly 1 claim expected, got {claims}"
+E   AssertionError: Exactly 1 claim expected, got 0
+E   assert 0 == 1
+----------------------------- Captured stdout call -----------------------------
+2026-08-15 20:18:38,020 INFO sqlalchemy.engine.Engine select pg_catalog.version()
+2026-08-15 20:18:38,020 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-08-15 20:18:38,022 INFO sqlalchemy.engine.Engine select current_schema()
+2026-08-15 20:18:38,022 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-08-15 20:18:38,022 INFO sqlalchemy.engine.Engine show standard_conforming_strings
+2026-08-15 20:18:38,022 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-08-15 20:18:38,023 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-08-15 20:18:38,035 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.email_normalized, users.password_hash, users.first_name, users.last_name, users.is_active, users.is_verified, users.is_superuser, users.created_at, users.updated_at, users.last_login_at 
+FROM users 
+WHERE users.email_normalized = $1::VARCHAR
+2026-08-15 20:18:38,035 INFO sqlalchemy.engine.Engine [generated in 0.00017s] ('test_a53703b8-a92f-4998-8b21-9c65c129d11d@example.com',)
+2026-08-15 20:18:38,082 INFO sqlalchemy.engine.Engine INSERT INTO users (id, email, email_normalized, password_hash, first_name, last_name, is_active, is_verified, is_superuser, created_at, updated_at, last_login_at) VALUES ($1::UUID, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::BOOLEAN, $8::BOOLEAN, $9::BOOLEAN, $10::TIMESTAMP WITH TIME ZONE, $11::TIMESTAMP WITH TIME ZONE, $12::TIMESTAMP WITH TIME ZONE)
+2026-08-15 20:18:38,082 INFO sqlalchemy.engine.Engine [generated in 0.00022s] (UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'test_a53703b8-a92f-4998-8b21-9c65c129d11d@example.com', 'test_a53703b8-a92f-4998-8b21-9c65c129d11d@example.com', '$argon2id$v=19$m=65536,t=3,p=4$01or5RyDEAIAwJiz1loLIQ$S4g2MWVVQV47VEv8e4yKfNqUOi0EpuKWfFVn6vGNrbs', 'T', 'I', True, False, False, datetime.datetime(2026, 8, 15, 20, 18, 38, 82749), datetime.datetime(2026, 8, 15, 20, 18, 38, 82751), None)
+2026-08-15 20:18:38,085 INFO sqlalchemy.engine.Engine INSERT INTO organizations (id, name, slug, organization_type, is_active, created_at, updated_at) VALUES ($1::UUID, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::BOOLEAN, $6::TIMESTAMP WITH TIME ZONE, $7::TIMESTAMP WITH TIME ZONE)
+2026-08-15 20:18:38,085 INFO sqlalchemy.engine.Engine [generated in 0.00017s] (UUID('bfcc6f5c-0252-47c0-b210-a17220109257'), 'T Organization', 'test-a53703b8-a92f-4998-8b21-9c65c129d11d-438a9514', 'PERSONAL', True, datetime.datetime(2026, 8, 15, 20, 18, 38, 85152), datetime.datetime(2026, 8, 15, 20, 18, 38, 85153))
+2026-08-15 20:18:38,086 INFO sqlalchemy.engine.Engine INSERT INTO organization_members (id, organization_id, user_id, status, created_at, updated_at) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::VARCHAR, $5::TIMESTAMP WITH TIME ZONE, $6::TIMESTAMP WITH TIME ZONE)
+2026-08-15 20:18:38,086 INFO sqlalchemy.engine.Engine [generated in 0.00014s] (UUID('ea5b6f13-2067-4a20-96f3-c71f3f24cc9a'), UUID('bfcc6f5c-0252-47c0-b210-a17220109257'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'ACTIVE', datetime.datetime(2026, 8, 15, 20, 18, 38, 86830), datetime.datetime(2026, 8, 15, 20, 18, 38, 86831))
+2026-08-15 20:18:38,088 INFO sqlalchemy.engine.Engine SELECT roles.id, roles.name, roles.description 
+FROM roles 
+WHERE roles.name = $1::VARCHAR
+2026-08-15 20:18:38,088 INFO sqlalchemy.engine.Engine [generated in 0.00012s] ('OWNER',)
+2026-08-15 20:18:38,090 INFO sqlalchemy.engine.Engine INSERT INTO member_roles (id, member_id, role_id) VALUES ($1::UUID, $2::UUID, $3::UUID)
+2026-08-15 20:18:38,090 INFO sqlalchemy.engine.Engine [generated in 0.00011s] (UUID('a667fd3b-e0c5-4811-a9ad-4cec9d19ea41'), UUID('ea5b6f13-2067-4a20-96f3-c71f3f24cc9a'), UUID('8de2fcf9-a7f0-4b98-bf93-96a0a0da1147'))
+2026-08-15 20:18:38,091 INFO sqlalchemy.engine.Engine INSERT INTO audit_logs (id, organization_id, user_id, event_type, entity_type, entity_id, correlation_id, created_at) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::VARCHAR, $8::TIMESTAMP WITH TIME ZONE)
+2026-08-15 20:18:38,091 INFO sqlalchemy.engine.Engine [generated in 0.00012s] (UUID('af9f2b02-83de-4fd3-b6da-2c8a9f5fd950'), UUID('bfcc6f5c-0252-47c0-b210-a17220109257'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'USER_REGISTERED', None, None, None, datetime.datetime(2026, 8, 15, 20, 18, 38, 91543))
+2026-08-15 20:18:38,093 INFO sqlalchemy.engine.Engine INSERT INTO refresh_tokens (id, user_id, token_hash, expires_at, revoked_at, created_at, replaced_by_token_id, user_agent, ip_address) VALUES ($1::UUID, $2::UUID, $3::VARCHAR, $4::TIMESTAMP WITH TIME ZONE, $5::TIMESTAMP WITH TIME ZONE, $6::TIMESTAMP WITH TIME ZONE, $7::UUID, $8::VARCHAR, $9::VARCHAR)
+2026-08-15 20:18:38,093 INFO sqlalchemy.engine.Engine [generated in 0.00015s] (UUID('09b24b64-0b03-4118-8cb2-b0cbed677c6e'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), '2a86ac57987831774b8eca3630da01374760be93b932bd1e3dd7befab3d358a6', datetime.datetime(2026, 8, 22, 20, 18, 38, 92808, tzinfo=datetime.timezone.utc), None, datetime.datetime(2026, 8, 15, 20, 18, 38, 93492), None, None, None)
+2026-08-15 20:18:38,094 INFO sqlalchemy.engine.Engine COMMIT
+2026-08-15 20:18:38,101 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-08-15 20:18:38,102 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.email_normalized, users.password_hash, users.first_name, users.last_name, users.is_active, users.is_verified, users.is_superuser, users.created_at, users.updated_at, users.last_login_at 
+FROM users 
+WHERE users.email = $1::VARCHAR
+2026-08-15 20:18:38,102 INFO sqlalchemy.engine.Engine [generated in 0.00010s] ('test_a53703b8-a92f-4998-8b21-9c65c129d11d@example.com',)
+2026-08-15 20:18:38,103 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-08-15 20:18:38,104 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-08-15 20:18:38,104 INFO sqlalchemy.engine.Engine INSERT INTO organizations (id, name, slug, organization_type, is_active, created_at, updated_at) VALUES ($1::UUID, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::BOOLEAN, $6::TIMESTAMP WITH TIME ZONE, $7::TIMESTAMP WITH TIME ZONE)
+2026-08-15 20:18:38,104 INFO sqlalchemy.engine.Engine [generated in 0.00010s] (UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), 'Org 6b98eb77-11d3-459f-ae66-8706333f69f4', 'org-45d1bf78-2eea-4ffb-9d93-7d6783ddc634', 'PERSONAL', True, datetime.datetime(2026, 8, 15, 20, 18, 38, 104502), datetime.datetime(2026, 8, 15, 20, 18, 38, 104503))
+2026-08-15 20:18:38,105 INFO sqlalchemy.engine.Engine INSERT INTO organization_members (id, organization_id, user_id, status, created_at, updated_at) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::VARCHAR, $5::TIMESTAMP WITH TIME ZONE, $6::TIMESTAMP WITH TIME ZONE)
+2026-08-15 20:18:38,105 INFO sqlalchemy.engine.Engine [cached since 0.01859s ago] (UUID('2d90bc6c-0c99-48e3-baea-7005a9909c63'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'ACTIVE', datetime.datetime(2026, 8, 15, 20, 18, 38, 105308), datetime.datetime(2026, 8, 15, 20, 18, 38, 105309))
+2026-08-15 20:18:38,106 INFO sqlalchemy.engine.Engine SELECT roles.id, roles.name, roles.description 
+FROM roles 
+WHERE roles.name = $1::VARCHAR
+2026-08-15 20:18:38,106 INFO sqlalchemy.engine.Engine [cached since 0.01734s ago] ('OWNER',)
+2026-08-15 20:18:38,106 INFO sqlalchemy.engine.Engine INSERT INTO member_roles (id, member_id, role_id) VALUES ($1::UUID, $2::UUID, $3::UUID)
+2026-08-15 20:18:38,106 INFO sqlalchemy.engine.Engine [cached since 0.01681s ago] (UUID('b57d4b44-bf4f-4fe5-b6c1-f4be4b1b86bd'), UUID('2d90bc6c-0c99-48e3-baea-7005a9909c63'), UUID('8de2fcf9-a7f0-4b98-bf93-96a0a0da1147'))
+2026-08-15 20:18:38,107 INFO sqlalchemy.engine.Engine COMMIT
+2026-08-15 20:18:38,113 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-08-15 20:18:38,113 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.email_normalized, users.password_hash, users.first_name, users.last_name, users.is_active, users.is_verified, users.is_superuser, users.created_at, users.updated_at, users.last_login_at 
+FROM users 
+WHERE users.id = $1::UUID
+2026-08-15 20:18:38,113 INFO sqlalchemy.engine.Engine [generated in 0.00009s] (UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'),)
+2026-08-15 20:18:38,116 INFO sqlalchemy.engine.Engine SELECT organization_members.id, organization_members.organization_id, organization_members.user_id, organization_members.status, organization_members.created_at, organization_members.updated_at 
+FROM organization_members 
+WHERE organization_members.user_id = $1::UUID AND organization_members.organization_id = $2::UUID AND organization_members.status = $3::VARCHAR
+2026-08-15 20:18:38,116 INFO sqlalchemy.engine.Engine [generated in 0.00011s] (UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), 'ACTIVE')
+2026-08-15 20:18:38,118 INFO sqlalchemy.engine.Engine SELECT member_roles.member_id AS member_roles_member_id, member_roles.id AS member_roles_id, member_roles.role_id AS member_roles_role_id 
+FROM member_roles 
+WHERE member_roles.member_id IN ($1::UUID)
+2026-08-15 20:18:38,118 INFO sqlalchemy.engine.Engine [generated in 0.00012s] (UUID('2d90bc6c-0c99-48e3-baea-7005a9909c63'),)
+2026-08-15 20:18:38,119 INFO sqlalchemy.engine.Engine SELECT organizations.id AS organizations_id, organizations.name AS organizations_name, organizations.slug AS organizations_slug, organizations.organization_type AS organizations_organization_type, organizations.is_active AS organizations_is_active, organizations.created_at AS organizations_created_at, organizations.updated_at AS organizations_updated_at 
+FROM organizations 
+WHERE organizations.id IN ($1::UUID)
+2026-08-15 20:18:38,119 INFO sqlalchemy.engine.Engine [generated in 0.00013s] (UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'),)
+2026-08-15 20:18:38,121 INFO sqlalchemy.engine.Engine SELECT roles.id AS roles_id, roles.name AS roles_name, roles.description AS roles_description 
+FROM roles 
+WHERE roles.id IN ($1::UUID)
+2026-08-15 20:18:38,121 INFO sqlalchemy.engine.Engine [generated in 0.00010s] (UUID('8de2fcf9-a7f0-4b98-bf93-96a0a0da1147'),)
+2026-08-15 20:18:38,122 INFO sqlalchemy.engine.Engine SELECT role_permissions.role_id AS role_permissions_role_id, role_permissions.id AS role_permissions_id, role_permissions.permission_id AS role_permissions_permission_id 
+FROM role_permissions 
+WHERE role_permissions.role_id IN ($1::UUID)
+2026-08-15 20:18:38,122 INFO sqlalchemy.engine.Engine [generated in 0.00011s] (UUID('8de2fcf9-a7f0-4b98-bf93-96a0a0da1147'),)
+2026-08-15 20:18:38,124 INFO sqlalchemy.engine.Engine SELECT permissions.id AS permissions_id, permissions.name AS permissions_name, permissions.description AS permissions_description 
+FROM permissions 
+WHERE permissions.id IN ($1::UUID, $2::UUID, $3::UUID, $4::UUID, $5::UUID, $6::UUID, $7::UUID, $8::UUID, $9::UUID, $10::UUID)
+2026-08-15 20:18:38,124 INFO sqlalchemy.engine.Engine [generated in 0.00015s] (UUID('70f48fdb-4f68-4d75-bd7e-21bacea1e1c9'), UUID('7e57c716-e13a-44ed-b5be-26f5b175d033'), UUID('7ff06746-f6c2-409f-ac99-b4c85822f6af'), UUID('871b1d82-873d-484b-b723-43858b59e14e'), UUID('88106e6a-3a79-49d7-9105-2f19c83dac59'), UUID('b2f22f58-2789-43d4-bae2-29dcad266dde'), UUID('d6b1211f-8aa1-4ac2-b2fe-d80c4e80f6d2'), UUID('df63badf-982c-4809-8472-b498d2f09b4a'), UUID('dfd06147-3c62-4609-bcfd-959afe2486ff'), UUID('e86a5d0c-7c14-4853-a291-067b0eab7ac4'))
+2026-08-15 20:18:38,136 INFO sqlalchemy.engine.Engine INSERT INTO resources (id, organization_id, uploaded_by_user_id, original_filename, display_name, storage_bucket, storage_key, content_type, extension, size_bytes, sha256, status, deleted_at) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::VARCHAR, $8::VARCHAR, $9::VARCHAR, $10::BIGINT, $11::VARCHAR, $12::VARCHAR, $13::TIMESTAMP WITH TIME ZONE) RETURNING resources.created_at, resources.updated_at
+2026-08-15 20:18:38,136 INFO sqlalchemy.engine.Engine [generated in 0.00016s] (UUID('4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'test.txt', 'test.txt', 'ai-teacher-resources', 'organizations/a5491669-a1be-4a8f-816c-5e180c6081c4/resources/4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7/original/4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7.txt', 'text/plain', '.txt', 8, '0bcb813d8c81c9eb223d12349ba77caca98db1a3930e17073b0cde26707251c3', 'UPLOADED', None)
+2026-08-15 20:18:38,138 INFO sqlalchemy.engine.Engine INSERT INTO audit_logs (id, organization_id, user_id, event_type, entity_type, entity_id, metadata, correlation_id, created_at) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::JSON, $8::VARCHAR, $9::TIMESTAMP WITH TIME ZONE)
+2026-08-15 20:18:38,138 INFO sqlalchemy.engine.Engine [generated in 0.00016s] (UUID('227d1150-984e-438a-bb7d-c40fc48f0b89'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'RESOURCE_UPLOADED', 'RESOURCE', '4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7', '{"size_bytes": 8, "content_type": "text/plain"}', None, datetime.datetime(2026, 8, 15, 20, 18, 38, 138374))
+2026-08-15 20:18:38,139 INFO sqlalchemy.engine.Engine COMMIT
+2026-08-15 20:18:38,142 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-08-15 20:18:38,143 INFO sqlalchemy.engine.Engine SELECT resources.id, resources.organization_id, resources.uploaded_by_user_id, resources.original_filename, resources.display_name, resources.storage_bucket, resources.storage_key, resources.content_type, resources.extension, resources.size_bytes, resources.sha256, resources.status, resources.created_at, resources.updated_at, resources.deleted_at 
+FROM resources 
+WHERE resources.id = $1::UUID
+2026-08-15 20:18:38,143 INFO sqlalchemy.engine.Engine [generated in 0.00009s] (UUID('4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7'),)
+2026-08-15 20:18:38,144 INFO sqlalchemy.engine.Engine COMMIT
+2026-08-15 20:18:38,147 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-08-15 20:18:38,147 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.email_normalized, users.password_hash, users.first_name, users.last_name, users.is_active, users.is_verified, users.is_superuser, users.created_at, users.updated_at, users.last_login_at 
+FROM users 
+WHERE users.id = $1::UUID
+2026-08-15 20:18:38,147 INFO sqlalchemy.engine.Engine [cached since 0.03395s ago] (UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'),)
+2026-08-15 20:18:38,148 INFO sqlalchemy.engine.Engine SELECT organization_members.id, organization_members.organization_id, organization_members.user_id, organization_members.status, organization_members.created_at, organization_members.updated_at 
+FROM organization_members 
+WHERE organization_members.user_id = $1::UUID AND organization_members.organization_id = $2::UUID AND organization_members.status = $3::VARCHAR
+2026-08-15 20:18:38,148 INFO sqlalchemy.engine.Engine [cached since 0.03259s ago] (UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), 'ACTIVE')
+2026-08-15 20:18:38,149 INFO sqlalchemy.engine.Engine SELECT member_roles.member_id AS member_roles_member_id, member_roles.id AS member_roles_id, member_roles.role_id AS member_roles_role_id 
+FROM member_roles 
+WHERE member_roles.member_id IN ($1::UUID)
+2026-08-15 20:18:38,149 INFO sqlalchemy.engine.Engine [cached since 0.0315s ago] (UUID('2d90bc6c-0c99-48e3-baea-7005a9909c63'),)
+2026-08-15 20:18:38,150 INFO sqlalchemy.engine.Engine SELECT organizations.id AS organizations_id, organizations.name AS organizations_name, organizations.slug AS organizations_slug, organizations.organization_type AS organizations_organization_type, organizations.is_active AS organizations_is_active, organizations.created_at AS organizations_created_at, organizations.updated_at AS organizations_updated_at 
+FROM organizations 
+WHERE organizations.id IN ($1::UUID)
+2026-08-15 20:18:38,150 INFO sqlalchemy.engine.Engine [cached since 0.03071s ago] (UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'),)
+2026-08-15 20:18:38,151 INFO sqlalchemy.engine.Engine SELECT roles.id AS roles_id, roles.name AS roles_name, roles.description AS roles_description 
+FROM roles 
+WHERE roles.id IN ($1::UUID)
+2026-08-15 20:18:38,151 INFO sqlalchemy.engine.Engine [cached since 0.03009s ago] (UUID('8de2fcf9-a7f0-4b98-bf93-96a0a0da1147'),)
+2026-08-15 20:18:38,151 INFO sqlalchemy.engine.Engine SELECT role_permissions.role_id AS role_permissions_role_id, role_permissions.id AS role_permissions_id, role_permissions.permission_id AS role_permissions_permission_id 
+FROM role_permissions 
+WHERE role_permissions.role_id IN ($1::UUID)
+2026-08-15 20:18:38,151 INFO sqlalchemy.engine.Engine [cached since 0.02914s ago] (UUID('8de2fcf9-a7f0-4b98-bf93-96a0a0da1147'),)
+2026-08-15 20:18:38,152 INFO sqlalchemy.engine.Engine SELECT permissions.id AS permissions_id, permissions.name AS permissions_name, permissions.description AS permissions_description 
+FROM permissions 
+WHERE permissions.id IN ($1::UUID, $2::UUID, $3::UUID, $4::UUID, $5::UUID, $6::UUID, $7::UUID, $8::UUID, $9::UUID, $10::UUID)
+2026-08-15 20:18:38,152 INFO sqlalchemy.engine.Engine [cached since 0.02825s ago] (UUID('70f48fdb-4f68-4d75-bd7e-21bacea1e1c9'), UUID('7e57c716-e13a-44ed-b5be-26f5b175d033'), UUID('7ff06746-f6c2-409f-ac99-b4c85822f6af'), UUID('871b1d82-873d-484b-b723-43858b59e14e'), UUID('88106e6a-3a79-49d7-9105-2f19c83dac59'), UUID('b2f22f58-2789-43d4-bae2-29dcad266dde'), UUID('d6b1211f-8aa1-4ac2-b2fe-d80c4e80f6d2'), UUID('df63badf-982c-4809-8472-b498d2f09b4a'), UUID('dfd06147-3c62-4609-bcfd-959afe2486ff'), UUID('e86a5d0c-7c14-4853-a291-067b0eab7ac4'))
+2026-08-15 20:18:38,153 INFO sqlalchemy.engine.Engine SELECT resources.id, resources.organization_id, resources.uploaded_by_user_id, resources.original_filename, resources.display_name, resources.storage_bucket, resources.storage_key, resources.content_type, resources.extension, resources.size_bytes, resources.sha256, resources.status, resources.created_at, resources.updated_at, resources.deleted_at 
+FROM resources 
+WHERE resources.id = $1::UUID AND resources.organization_id = $2::UUID AND resources.deleted_at IS NULL
+2026-08-15 20:18:38,153 INFO sqlalchemy.engine.Engine [generated in 0.00008s] (UUID('4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'))
+2026-08-15 20:18:38,155 INFO sqlalchemy.engine.Engine SELECT resource_ingestion_jobs.id, resource_ingestion_jobs.organization_id, resource_ingestion_jobs.resource_id, resource_ingestion_jobs.requested_by_user_id, resource_ingestion_jobs.status, resource_ingestion_jobs.extractor, resource_ingestion_jobs.extractor_version, resource_ingestion_jobs.started_at, resource_ingestion_jobs.completed_at, resource_ingestion_jobs.failed_at, resource_ingestion_jobs.error_code, resource_ingestion_jobs.error_message, resource_ingestion_jobs.page_count, resource_ingestion_jobs.character_count, resource_ingestion_jobs.created_at, resource_ingestion_jobs.updated_at 
+FROM resource_ingestion_jobs 
+WHERE resource_ingestion_jobs.organization_id = $1::UUID AND resource_ingestion_jobs.resource_id = $2::UUID ORDER BY resource_ingestion_jobs.created_at DESC 
+ LIMIT $3::INTEGER
+2026-08-15 20:18:38,155 INFO sqlalchemy.engine.Engine [generated in 0.00009s] (UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), UUID('4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7'), 1)
+2026-08-15 20:18:38,157 INFO sqlalchemy.engine.Engine INSERT INTO resource_ingestion_jobs (id, organization_id, resource_id, requested_by_user_id, status, extractor, extractor_version, started_at, completed_at, failed_at, error_code, error_message, page_count, character_count, created_at, updated_at) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::UUID, $5::VARCHAR, $6::VARCHAR, $7::VARCHAR, $8::TIMESTAMP WITH TIME ZONE, $9::TIMESTAMP WITH TIME ZONE, $10::TIMESTAMP WITH TIME ZONE, $11::VARCHAR, $12::VARCHAR, $13::INTEGER, $14::INTEGER, $15::TIMESTAMP WITH TIME ZONE, $16::TIMESTAMP WITH TIME ZONE)
+2026-08-15 20:18:38,157 INFO sqlalchemy.engine.Engine [generated in 0.00014s] (UUID('2e0da242-8bbf-4f3b-a00b-edf303905707'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), UUID('4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'PENDING', None, None, None, None, None, None, None, None, None, datetime.datetime(2026, 8, 15, 20, 18, 38, 157028, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 8, 15, 20, 18, 38, 157030, tzinfo=datetime.timezone.utc))
+2026-08-15 20:18:38,158 INFO sqlalchemy.engine.Engine UPDATE resource_ingestion_jobs SET status=$1::VARCHAR, updated_at=$2::TIMESTAMP WITH TIME ZONE WHERE resource_ingestion_jobs.id = $3::UUID RETURNING resource_ingestion_jobs.id, resource_ingestion_jobs.organization_id, resource_ingestion_jobs.resource_id, resource_ingestion_jobs.requested_by_user_id, resource_ingestion_jobs.status, resource_ingestion_jobs.extractor, resource_ingestion_jobs.extractor_version, resource_ingestion_jobs.started_at, resource_ingestion_jobs.completed_at, resource_ingestion_jobs.failed_at, resource_ingestion_jobs.error_code, resource_ingestion_jobs.error_message, resource_ingestion_jobs.page_count, resource_ingestion_jobs.character_count, resource_ingestion_jobs.created_at, resource_ingestion_jobs.updated_at
+2026-08-15 20:18:38,159 INFO sqlalchemy.engine.Engine [generated in 0.00009s] ('QUEUED', datetime.datetime(2026, 8, 15, 20, 18, 38, 158021, tzinfo=datetime.timezone.utc), UUID('2e0da242-8bbf-4f3b-a00b-edf303905707'))
+2026-08-15 20:18:38,160 INFO sqlalchemy.engine.Engine INSERT INTO audit_logs (id, organization_id, user_id, event_type, entity_type, entity_id, correlation_id, created_at) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::VARCHAR, $8::TIMESTAMP WITH TIME ZONE)
+2026-08-15 20:18:38,160 INFO sqlalchemy.engine.Engine [cached since 0.06879s ago] (UUID('07c1c5c2-7d72-4f0d-8083-c2b24cc48c68'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'INGESTION_REQUESTED', 'RESOURCE_INGESTION_JOB', '2e0da242-8bbf-4f3b-a00b-edf303905707', None, datetime.datetime(2026, 8, 15, 20, 18, 38, 160220))
+2026-08-15 20:18:38,160 INFO sqlalchemy.engine.Engine COMMIT
+2026-08-15 20:18:39,191 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-08-15 20:18:39,192 INFO sqlalchemy.engine.Engine UPDATE resource_ingestion_jobs SET status=$1::VARCHAR, started_at=$2::TIMESTAMP WITH TIME ZONE, updated_at=$3::TIMESTAMP WITH TIME ZONE WHERE resource_ingestion_jobs.id = $4::UUID AND resource_ingestion_jobs.status = $5::VARCHAR RETURNING resource_ingestion_jobs.id, resource_ingestion_jobs.organization_id, resource_ingestion_jobs.resource_id, resource_ingestion_jobs.requested_by_user_id, resource_ingestion_jobs.status, resource_ingestion_jobs.extractor, resource_ingestion_jobs.extractor_version, resource_ingestion_jobs.started_at, resource_ingestion_jobs.completed_at, resource_ingestion_jobs.failed_at, resource_ingestion_jobs.error_code, resource_ingestion_jobs.error_message, resource_ingestion_jobs.page_count, resource_ingestion_jobs.character_count, resource_ingestion_jobs.created_at, resource_ingestion_jobs.updated_at
+2026-08-15 20:18:39,192 INFO sqlalchemy.engine.Engine [generated in 0.00013s] ('PROCESSING', datetime.datetime(2026, 8, 15, 20, 18, 39, 189987, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 8, 15, 20, 18, 39, 189991, tzinfo=datetime.timezone.utc), UUID('2e0da242-8bbf-4f3b-a00b-edf303905707'), 'QUEUED')
+2026-08-15 20:18:39,193 INFO sqlalchemy.engine.Engine COMMIT
+2026-08-15 20:18:39,194 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-08-15 20:18:39,195 INFO sqlalchemy.engine.Engine UPDATE resource_ingestion_jobs SET status=$1::VARCHAR, started_at=$2::TIMESTAMP WITH TIME ZONE, updated_at=$3::TIMESTAMP WITH TIME ZONE WHERE resource_ingestion_jobs.id = $4::UUID AND resource_ingestion_jobs.status = $5::VARCHAR RETURNING resource_ingestion_jobs.id, resource_ingestion_jobs.organization_id, resource_ingestion_jobs.resource_id, resource_ingestion_jobs.requested_by_user_id, resource_ingestion_jobs.status, resource_ingestion_jobs.extractor, resource_ingestion_jobs.extractor_version, resource_ingestion_jobs.started_at, resource_ingestion_jobs.completed_at, resource_ingestion_jobs.failed_at, resource_ingestion_jobs.error_code, resource_ingestion_jobs.error_message, resource_ingestion_jobs.page_count, resource_ingestion_jobs.character_count, resource_ingestion_jobs.created_at, resource_ingestion_jobs.updated_at
+2026-08-15 20:18:39,195 INFO sqlalchemy.engine.Engine [cached since 0.002747s ago] ('PROCESSING', datetime.datetime(2026, 8, 15, 20, 18, 39, 194415, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 8, 15, 20, 18, 39, 194416, tzinfo=datetime.timezone.utc), UUID('2e0da242-8bbf-4f3b-a00b-edf303905707'), 'QUEUED')
+2026-08-15 20:18:39,195 INFO sqlalchemy.engine.Engine COMMIT
+------------------------------ Captured log call -------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:1846 select pg_catalog.version()
+INFO     sqlalchemy.engine.Engine:base.py:1846 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1846 select current_schema()
+INFO     sqlalchemy.engine.Engine:base.py:1846 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1846 show standard_conforming_strings
+INFO     sqlalchemy.engine.Engine:base.py:1846 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT users.id, users.email, users.email_normalized, users.password_hash, users.first_name, users.last_name, users.is_active, users.is_verified, users.is_superuser, users.created_at, users.updated_at, users.last_login_at 
+FROM users 
+WHERE users.email_normalized = $1::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00017s] ('test_a53703b8-a92f-4998-8b21-9c65c129d11d@example.com',)
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO users (id, email, email_normalized, password_hash, first_name, last_name, is_active, is_verified, is_superuser, created_at, updated_at, last_login_at) VALUES ($1::UUID, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::BOOLEAN, $8::BOOLEAN, $9::BOOLEAN, $10::TIMESTAMP WITH TIME ZONE, $11::TIMESTAMP WITH TIME ZONE, $12::TIMESTAMP WITH TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00022s] (UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'test_a53703b8-a92f-4998-8b21-9c65c129d11d@example.com', 'test_a53703b8-a92f-4998-8b21-9c65c129d11d@example.com', '$argon2id$v=19$m=65536,t=3,p=4$01or5RyDEAIAwJiz1loLIQ$S4g2MWVVQV47VEv8e4yKfNqUOi0EpuKWfFVn6vGNrbs', 'T', 'I', True, False, False, datetime.datetime(2026, 8, 15, 20, 18, 38, 82749), datetime.datetime(2026, 8, 15, 20, 18, 38, 82751), None)
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO organizations (id, name, slug, organization_type, is_active, created_at, updated_at) VALUES ($1::UUID, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::BOOLEAN, $6::TIMESTAMP WITH TIME ZONE, $7::TIMESTAMP WITH TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00017s] (UUID('bfcc6f5c-0252-47c0-b210-a17220109257'), 'T Organization', 'test-a53703b8-a92f-4998-8b21-9c65c129d11d-438a9514', 'PERSONAL', True, datetime.datetime(2026, 8, 15, 20, 18, 38, 85152), datetime.datetime(2026, 8, 15, 20, 18, 38, 85153))
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO organization_members (id, organization_id, user_id, status, created_at, updated_at) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::VARCHAR, $5::TIMESTAMP WITH TIME ZONE, $6::TIMESTAMP WITH TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00014s] (UUID('ea5b6f13-2067-4a20-96f3-c71f3f24cc9a'), UUID('bfcc6f5c-0252-47c0-b210-a17220109257'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'ACTIVE', datetime.datetime(2026, 8, 15, 20, 18, 38, 86830), datetime.datetime(2026, 8, 15, 20, 18, 38, 86831))
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT roles.id, roles.name, roles.description 
+FROM roles 
+WHERE roles.name = $1::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00012s] ('OWNER',)
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO member_roles (id, member_id, role_id) VALUES ($1::UUID, $2::UUID, $3::UUID)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00011s] (UUID('a667fd3b-e0c5-4811-a9ad-4cec9d19ea41'), UUID('ea5b6f13-2067-4a20-96f3-c71f3f24cc9a'), UUID('8de2fcf9-a7f0-4b98-bf93-96a0a0da1147'))
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO audit_logs (id, organization_id, user_id, event_type, entity_type, entity_id, correlation_id, created_at) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::VARCHAR, $8::TIMESTAMP WITH TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00012s] (UUID('af9f2b02-83de-4fd3-b6da-2c8a9f5fd950'), UUID('bfcc6f5c-0252-47c0-b210-a17220109257'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'USER_REGISTERED', None, None, None, datetime.datetime(2026, 8, 15, 20, 18, 38, 91543))
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO refresh_tokens (id, user_id, token_hash, expires_at, revoked_at, created_at, replaced_by_token_id, user_agent, ip_address) VALUES ($1::UUID, $2::UUID, $3::VARCHAR, $4::TIMESTAMP WITH TIME ZONE, $5::TIMESTAMP WITH TIME ZONE, $6::TIMESTAMP WITH TIME ZONE, $7::UUID, $8::VARCHAR, $9::VARCHAR)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00015s] (UUID('09b24b64-0b03-4118-8cb2-b0cbed677c6e'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), '2a86ac57987831774b8eca3630da01374760be93b932bd1e3dd7befab3d358a6', datetime.datetime(2026, 8, 22, 20, 18, 38, 92808, tzinfo=datetime.timezone.utc), None, datetime.datetime(2026, 8, 15, 20, 18, 38, 93492), None, None, None)
+INFO     sqlalchemy.engine.Engine:base.py:2705 COMMIT
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT users.id, users.email, users.email_normalized, users.password_hash, users.first_name, users.last_name, users.is_active, users.is_verified, users.is_superuser, users.created_at, users.updated_at, users.last_login_at 
+FROM users 
+WHERE users.email = $1::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00010s] ('test_a53703b8-a92f-4998-8b21-9c65c129d11d@example.com',)
+INFO     sqlalchemy.engine.Engine:base.py:2702 ROLLBACK
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO organizations (id, name, slug, organization_type, is_active, created_at, updated_at) VALUES ($1::UUID, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::BOOLEAN, $6::TIMESTAMP WITH TIME ZONE, $7::TIMESTAMP WITH TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00010s] (UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), 'Org 6b98eb77-11d3-459f-ae66-8706333f69f4', 'org-45d1bf78-2eea-4ffb-9d93-7d6783ddc634', 'PERSONAL', True, datetime.datetime(2026, 8, 15, 20, 18, 38, 104502), datetime.datetime(2026, 8, 15, 20, 18, 38, 104503))
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO organization_members (id, organization_id, user_id, status, created_at, updated_at) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::VARCHAR, $5::TIMESTAMP WITH TIME ZONE, $6::TIMESTAMP WITH TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.01859s ago] (UUID('2d90bc6c-0c99-48e3-baea-7005a9909c63'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'ACTIVE', datetime.datetime(2026, 8, 15, 20, 18, 38, 105308), datetime.datetime(2026, 8, 15, 20, 18, 38, 105309))
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT roles.id, roles.name, roles.description 
+FROM roles 
+WHERE roles.name = $1::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.01734s ago] ('OWNER',)
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO member_roles (id, member_id, role_id) VALUES ($1::UUID, $2::UUID, $3::UUID)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.01681s ago] (UUID('b57d4b44-bf4f-4fe5-b6c1-f4be4b1b86bd'), UUID('2d90bc6c-0c99-48e3-baea-7005a9909c63'), UUID('8de2fcf9-a7f0-4b98-bf93-96a0a0da1147'))
+INFO     sqlalchemy.engine.Engine:base.py:2705 COMMIT
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT users.id, users.email, users.email_normalized, users.password_hash, users.first_name, users.last_name, users.is_active, users.is_verified, users.is_superuser, users.created_at, users.updated_at, users.last_login_at 
+FROM users 
+WHERE users.id = $1::UUID
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00009s] (UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'),)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT organization_members.id, organization_members.organization_id, organization_members.user_id, organization_members.status, organization_members.created_at, organization_members.updated_at 
+FROM organization_members 
+WHERE organization_members.user_id = $1::UUID AND organization_members.organization_id = $2::UUID AND organization_members.status = $3::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00011s] (UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), 'ACTIVE')
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT member_roles.member_id AS member_roles_member_id, member_roles.id AS member_roles_id, member_roles.role_id AS member_roles_role_id 
+FROM member_roles 
+WHERE member_roles.member_id IN ($1::UUID)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00012s] (UUID('2d90bc6c-0c99-48e3-baea-7005a9909c63'),)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT organizations.id AS organizations_id, organizations.name AS organizations_name, organizations.slug AS organizations_slug, organizations.organization_type AS organizations_organization_type, organizations.is_active AS organizations_is_active, organizations.created_at AS organizations_created_at, organizations.updated_at AS organizations_updated_at 
+FROM organizations 
+WHERE organizations.id IN ($1::UUID)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00013s] (UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'),)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT roles.id AS roles_id, roles.name AS roles_name, roles.description AS roles_description 
+FROM roles 
+WHERE roles.id IN ($1::UUID)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00010s] (UUID('8de2fcf9-a7f0-4b98-bf93-96a0a0da1147'),)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT role_permissions.role_id AS role_permissions_role_id, role_permissions.id AS role_permissions_id, role_permissions.permission_id AS role_permissions_permission_id 
+FROM role_permissions 
+WHERE role_permissions.role_id IN ($1::UUID)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00011s] (UUID('8de2fcf9-a7f0-4b98-bf93-96a0a0da1147'),)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT permissions.id AS permissions_id, permissions.name AS permissions_name, permissions.description AS permissions_description 
+FROM permissions 
+WHERE permissions.id IN ($1::UUID, $2::UUID, $3::UUID, $4::UUID, $5::UUID, $6::UUID, $7::UUID, $8::UUID, $9::UUID, $10::UUID)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00015s] (UUID('70f48fdb-4f68-4d75-bd7e-21bacea1e1c9'), UUID('7e57c716-e13a-44ed-b5be-26f5b175d033'), UUID('7ff06746-f6c2-409f-ac99-b4c85822f6af'), UUID('871b1d82-873d-484b-b723-43858b59e14e'), UUID('88106e6a-3a79-49d7-9105-2f19c83dac59'), UUID('b2f22f58-2789-43d4-bae2-29dcad266dde'), UUID('d6b1211f-8aa1-4ac2-b2fe-d80c4e80f6d2'), UUID('df63badf-982c-4809-8472-b498d2f09b4a'), UUID('dfd06147-3c62-4609-bcfd-959afe2486ff'), UUID('e86a5d0c-7c14-4853-a291-067b0eab7ac4'))
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO resources (id, organization_id, uploaded_by_user_id, original_filename, display_name, storage_bucket, storage_key, content_type, extension, size_bytes, sha256, status, deleted_at) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::VARCHAR, $8::VARCHAR, $9::VARCHAR, $10::BIGINT, $11::VARCHAR, $12::VARCHAR, $13::TIMESTAMP WITH TIME ZONE) RETURNING resources.created_at, resources.updated_at
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00016s] (UUID('4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'test.txt', 'test.txt', 'ai-teacher-resources', 'organizations/a5491669-a1be-4a8f-816c-5e180c6081c4/resources/4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7/original/4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7.txt', 'text/plain', '.txt', 8, '0bcb813d8c81c9eb223d12349ba77caca98db1a3930e17073b0cde26707251c3', 'UPLOADED', None)
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO audit_logs (id, organization_id, user_id, event_type, entity_type, entity_id, metadata, correlation_id, created_at) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::JSON, $8::VARCHAR, $9::TIMESTAMP WITH TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00016s] (UUID('227d1150-984e-438a-bb7d-c40fc48f0b89'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'RESOURCE_UPLOADED', 'RESOURCE', '4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7', '{"size_bytes": 8, "content_type": "text/plain"}', None, datetime.datetime(2026, 8, 15, 20, 18, 38, 138374))
+INFO     sqlalchemy.engine.Engine:base.py:2705 COMMIT
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT resources.id, resources.organization_id, resources.uploaded_by_user_id, resources.original_filename, resources.display_name, resources.storage_bucket, resources.storage_key, resources.content_type, resources.extension, resources.size_bytes, resources.sha256, resources.status, resources.created_at, resources.updated_at, resources.deleted_at 
+FROM resources 
+WHERE resources.id = $1::UUID
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00009s] (UUID('4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7'),)
+INFO     sqlalchemy.engine.Engine:base.py:2705 COMMIT
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT users.id, users.email, users.email_normalized, users.password_hash, users.first_name, users.last_name, users.is_active, users.is_verified, users.is_superuser, users.created_at, users.updated_at, users.last_login_at 
+FROM users 
+WHERE users.id = $1::UUID
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.03395s ago] (UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'),)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT organization_members.id, organization_members.organization_id, organization_members.user_id, organization_members.status, organization_members.created_at, organization_members.updated_at 
+FROM organization_members 
+WHERE organization_members.user_id = $1::UUID AND organization_members.organization_id = $2::UUID AND organization_members.status = $3::VARCHAR
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.03259s ago] (UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), 'ACTIVE')
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT member_roles.member_id AS member_roles_member_id, member_roles.id AS member_roles_id, member_roles.role_id AS member_roles_role_id 
+FROM member_roles 
+WHERE member_roles.member_id IN ($1::UUID)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.0315s ago] (UUID('2d90bc6c-0c99-48e3-baea-7005a9909c63'),)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT organizations.id AS organizations_id, organizations.name AS organizations_name, organizations.slug AS organizations_slug, organizations.organization_type AS organizations_organization_type, organizations.is_active AS organizations_is_active, organizations.created_at AS organizations_created_at, organizations.updated_at AS organizations_updated_at 
+FROM organizations 
+WHERE organizations.id IN ($1::UUID)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.03071s ago] (UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'),)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT roles.id AS roles_id, roles.name AS roles_name, roles.description AS roles_description 
+FROM roles 
+WHERE roles.id IN ($1::UUID)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.03009s ago] (UUID('8de2fcf9-a7f0-4b98-bf93-96a0a0da1147'),)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT role_permissions.role_id AS role_permissions_role_id, role_permissions.id AS role_permissions_id, role_permissions.permission_id AS role_permissions_permission_id 
+FROM role_permissions 
+WHERE role_permissions.role_id IN ($1::UUID)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.02914s ago] (UUID('8de2fcf9-a7f0-4b98-bf93-96a0a0da1147'),)
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT permissions.id AS permissions_id, permissions.name AS permissions_name, permissions.description AS permissions_description 
+FROM permissions 
+WHERE permissions.id IN ($1::UUID, $2::UUID, $3::UUID, $4::UUID, $5::UUID, $6::UUID, $7::UUID, $8::UUID, $9::UUID, $10::UUID)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.02825s ago] (UUID('70f48fdb-4f68-4d75-bd7e-21bacea1e1c9'), UUID('7e57c716-e13a-44ed-b5be-26f5b175d033'), UUID('7ff06746-f6c2-409f-ac99-b4c85822f6af'), UUID('871b1d82-873d-484b-b723-43858b59e14e'), UUID('88106e6a-3a79-49d7-9105-2f19c83dac59'), UUID('b2f22f58-2789-43d4-bae2-29dcad266dde'), UUID('d6b1211f-8aa1-4ac2-b2fe-d80c4e80f6d2'), UUID('df63badf-982c-4809-8472-b498d2f09b4a'), UUID('dfd06147-3c62-4609-bcfd-959afe2486ff'), UUID('e86a5d0c-7c14-4853-a291-067b0eab7ac4'))
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT resources.id, resources.organization_id, resources.uploaded_by_user_id, resources.original_filename, resources.display_name, resources.storage_bucket, resources.storage_key, resources.content_type, resources.extension, resources.size_bytes, resources.sha256, resources.status, resources.created_at, resources.updated_at, resources.deleted_at 
+FROM resources 
+WHERE resources.id = $1::UUID AND resources.organization_id = $2::UUID AND resources.deleted_at IS NULL
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00008s] (UUID('4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'))
+INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT resource_ingestion_jobs.id, resource_ingestion_jobs.organization_id, resource_ingestion_jobs.resource_id, resource_ingestion_jobs.requested_by_user_id, resource_ingestion_jobs.status, resource_ingestion_jobs.extractor, resource_ingestion_jobs.extractor_version, resource_ingestion_jobs.started_at, resource_ingestion_jobs.completed_at, resource_ingestion_jobs.failed_at, resource_ingestion_jobs.error_code, resource_ingestion_jobs.error_message, resource_ingestion_jobs.page_count, resource_ingestion_jobs.character_count, resource_ingestion_jobs.created_at, resource_ingestion_jobs.updated_at 
+FROM resource_ingestion_jobs 
+WHERE resource_ingestion_jobs.organization_id = $1::UUID AND resource_ingestion_jobs.resource_id = $2::UUID ORDER BY resource_ingestion_jobs.created_at DESC 
+ LIMIT $3::INTEGER
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00009s] (UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), UUID('4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7'), 1)
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO resource_ingestion_jobs (id, organization_id, resource_id, requested_by_user_id, status, extractor, extractor_version, started_at, completed_at, failed_at, error_code, error_message, page_count, character_count, created_at, updated_at) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::UUID, $5::VARCHAR, $6::VARCHAR, $7::VARCHAR, $8::TIMESTAMP WITH TIME ZONE, $9::TIMESTAMP WITH TIME ZONE, $10::TIMESTAMP WITH TIME ZONE, $11::VARCHAR, $12::VARCHAR, $13::INTEGER, $14::INTEGER, $15::TIMESTAMP WITH TIME ZONE, $16::TIMESTAMP WITH TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00014s] (UUID('2e0da242-8bbf-4f3b-a00b-edf303905707'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), UUID('4f6e9c95-f2ec-47bf-81dc-6f96d13fb4f7'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'PENDING', None, None, None, None, None, None, None, None, None, datetime.datetime(2026, 8, 15, 20, 18, 38, 157028, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 8, 15, 20, 18, 38, 157030, tzinfo=datetime.timezone.utc))
+INFO     sqlalchemy.engine.Engine:base.py:1846 UPDATE resource_ingestion_jobs SET status=$1::VARCHAR, updated_at=$2::TIMESTAMP WITH TIME ZONE WHERE resource_ingestion_jobs.id = $3::UUID RETURNING resource_ingestion_jobs.id, resource_ingestion_jobs.organization_id, resource_ingestion_jobs.resource_id, resource_ingestion_jobs.requested_by_user_id, resource_ingestion_jobs.status, resource_ingestion_jobs.extractor, resource_ingestion_jobs.extractor_version, resource_ingestion_jobs.started_at, resource_ingestion_jobs.completed_at, resource_ingestion_jobs.failed_at, resource_ingestion_jobs.error_code, resource_ingestion_jobs.error_message, resource_ingestion_jobs.page_count, resource_ingestion_jobs.character_count, resource_ingestion_jobs.created_at, resource_ingestion_jobs.updated_at
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00009s] ('QUEUED', datetime.datetime(2026, 8, 15, 20, 18, 38, 158021, tzinfo=datetime.timezone.utc), UUID('2e0da242-8bbf-4f3b-a00b-edf303905707'))
+INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO audit_logs (id, organization_id, user_id, event_type, entity_type, entity_id, correlation_id, created_at) VALUES ($1::UUID, $2::UUID, $3::UUID, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::VARCHAR, $8::TIMESTAMP WITH TIME ZONE)
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.06879s ago] (UUID('07c1c5c2-7d72-4f0d-8083-c2b24cc48c68'), UUID('a5491669-a1be-4a8f-816c-5e180c6081c4'), UUID('932734f9-1168-4cc6-91bd-697f88c2ba09'), 'INGESTION_REQUESTED', 'RESOURCE_INGESTION_JOB', '2e0da242-8bbf-4f3b-a00b-edf303905707', None, datetime.datetime(2026, 8, 15, 20, 18, 38, 160220))
+INFO     sqlalchemy.engine.Engine:base.py:2705 COMMIT
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1846 UPDATE resource_ingestion_jobs SET status=$1::VARCHAR, started_at=$2::TIMESTAMP WITH TIME ZONE, updated_at=$3::TIMESTAMP WITH TIME ZONE WHERE resource_ingestion_jobs.id = $4::UUID AND resource_ingestion_jobs.status = $5::VARCHAR RETURNING resource_ingestion_jobs.id, resource_ingestion_jobs.organization_id, resource_ingestion_jobs.resource_id, resource_ingestion_jobs.requested_by_user_id, resource_ingestion_jobs.status, resource_ingestion_jobs.extractor, resource_ingestion_jobs.extractor_version, resource_ingestion_jobs.started_at, resource_ingestion_jobs.completed_at, resource_ingestion_jobs.failed_at, resource_ingestion_jobs.error_code, resource_ingestion_jobs.error_message, resource_ingestion_jobs.page_count, resource_ingestion_jobs.character_count, resource_ingestion_jobs.created_at, resource_ingestion_jobs.updated_at
+INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00013s] ('PROCESSING', datetime.datetime(2026, 8, 15, 20, 18, 39, 189987, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 8, 15, 20, 18, 39, 189991, tzinfo=datetime.timezone.utc), UUID('2e0da242-8bbf-4f3b-a00b-edf303905707'), 'QUEUED')
+INFO     sqlalchemy.engine.Engine:base.py:2705 COMMIT
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1846 UPDATE resource_ingestion_jobs SET status=$1::VARCHAR, started_at=$2::TIMESTAMP WITH TIME ZONE, updated_at=$3::TIMESTAMP WITH TIME ZONE WHERE resource_ingestion_jobs.id = $4::UUID AND resource_ingestion_jobs.status = $5::VARCHAR RETURNING resource_ingestion_jobs.id, resource_ingestion_jobs.organization_id, resource_ingestion_jobs.resource_id, resource_ingestion_jobs.requested_by_user_id, resource_ingestion_jobs.status, resource_ingestion_jobs.extractor, resource_ingestion_jobs.extractor_version, resource_ingestion_jobs.started_at, resource_ingestion_jobs.completed_at, resource_ingestion_jobs.failed_at, resource_ingestion_jobs.error_code, resource_ingestion_jobs.error_message, resource_ingestion_jobs.page_count, resource_ingestion_jobs.character_count, resource_ingestion_jobs.created_at, resource_ingestion_jobs.updated_at
+INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.002747s ago] ('PROCESSING', datetime.datetime(2026, 8, 15, 20, 18, 39, 194415, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 8, 15, 20, 18, 39, 194416, tzinfo=datetime.timezone.utc), UUID('2e0da242-8bbf-4f3b-a00b-edf303905707'), 'QUEUED')
+INFO     sqlalchemy.engine.Engine:base.py:2705 COMMIT
+=============================== warnings summary ===============================
+app/core/config.py:47
+  /app/app/core/config.py:47: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    @validator("JWT_SECRET_KEY")
+
+../usr/local/lib/python3.11/site-packages/pydantic/_internal/_config.py:284
+../usr/local/lib/python3.11/site-packages/pydantic/_internal/_config.py:284
+../usr/local/lib/python3.11/site-packages/pydantic/_internal/_config.py:284
+  /usr/local/lib/python3.11/site-packages/pydantic/_internal/_config.py:284: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+../usr/local/lib/python3.11/site-packages/passlib/utils/__init__.py:854
+  /usr/local/lib/python3.11/site-packages/passlib/utils/__init__.py:854: DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
+    from crypt import crypt as _crypt
+
+tests/test_06_ingestion_reliability.py::test_duplicate_execution_single_claim
+  /usr/local/lib/python3.11/site-packages/pytest_asyncio/plugin.py:759: DeprecationWarning: The event_loop fixture provided by pytest-asyncio has been redefined in
+  /app/tests/conftest.py:8
+  Replacing the event_loop fixture with a custom implementation is deprecated
+  and will lead to errors in the future.
+  If you want to request an asyncio event loop with a scope other than function
+  scope, use the "scope" argument to the asyncio mark when marking the tests.
+  If you want to return different types of event loops, use the event_loop_policy
+  fixture.
+  
+    warnings.warn(
+
+tests/test_06_ingestion_reliability.py::test_duplicate_execution_single_claim
+  /usr/local/lib/python3.11/site-packages/passlib/handlers/argon2.py:716: DeprecationWarning: Accessing argon2.__version__ is deprecated and will be removed in a future release. Use importlib.metadata directly to query for structlog's packaging metadata.
+    _argon2_cffi.__version__, max_version)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_06_ingestion_reliability.py::test_duplicate_execution_single_claim
+======================== 1 failed, 7 warnings in 1.61s =========================

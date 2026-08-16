@@ -12,6 +12,7 @@ from app.api.v1.health import router as health_router
 from app.modules.identity.router import router as auth_router
 from app.modules.organization.router import router as org_router
 from app.modules.resource.router import router as resource_router
+from app.modules.ingestion.router import router as ingestion_router, document_router as ingestion_document_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -63,7 +64,11 @@ app.include_router(health_router, prefix="/api/v1")
 app.include_router(health_router)
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(org_router, prefix="/api/v1/organizations", tags=["Organizations"])
-app.include_router(resource_router, prefix="/api/v1/organizations/{organization_id}/resources", tags=["Resources"]) # also at root for easy access
+app.include_router(resource_router, prefix="/api/v1/organizations/{organization_id}/resources", tags=["Resources"])
+app.include_router(ingestion_router, prefix="/api/v1/organizations")
+app.include_router(ingestion_document_router, prefix="/api/v1/organizations")
+
+
 
 
 
