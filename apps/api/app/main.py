@@ -1,4 +1,4 @@
-﻿from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
@@ -14,6 +14,7 @@ from app.modules.organization.router import router as org_router
 from app.modules.resource.router import router as resource_router
 from app.modules.ingestion.router import router as ingestion_router, document_router as ingestion_document_router
 from app.modules.retrieval.router import router as retrieval_router
+from app.modules.lesson.router import router as lesson_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -69,7 +70,7 @@ app.include_router(resource_router, prefix="/api/v1/organizations/{organization_
 app.include_router(ingestion_router, prefix="/api/v1/organizations")
 app.include_router(ingestion_document_router, prefix="/api/v1/organizations")
 app.include_router(retrieval_router, prefix="/api/v1/organizations", tags=["Retrieval"])
-
+app.include_router(lesson_router, prefix="/api/v1/organizations", tags=["Lessons"])
 
 
 

@@ -27,3 +27,4 @@ python-pptx==0.6.23
 
 pgvector==0.2.5
 sentence-transformers==2.7.0
+openai==1.30.1

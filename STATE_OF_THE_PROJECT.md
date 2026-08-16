@@ -1,7 +1,7 @@
 # CANLI ÖĞRETMEN AI - PROJE DURUM RAPORU
 
 **Son Güncelleme:** 16 Ağustos 2026
-**Bulunulan Aşama:** Phase 5 Tamamlandı, Phase 6'ya geçişe hazır.
+**Bulunulan Aşama:** Phase 7 Tamamlandı. Gelecek adımlar (Phase 8+) için hazır.
 
 Bu belge, projeye yeni dahil olan kullanıcıların veya AI ajanlarının projenin şu anki durumunu, mimarisini ve nelerin tamamlandığını hızlıca anlaması için hazırlanmıştır.
 
@@ -51,17 +51,32 @@ Proje, çok kiracılı (multi-tenant) ve ölçeklenebilir bir RAG (Retrieval-Aug
 
 ---
 
-## 🚧 Sıradaki Aşama: PHASE 6 - LLM & LESSON ENGINE
-
-Şu andan itibaren **Phase 6** aşamasına geçilebilir.
-Bu aşamada şunlar yapılacaktır:
-1. LLM Entegrasyonu (Yerel GPU tabanlı model veya API).
-2. RAG sisteminin kullanılarak (Phase 5'te yapılan vektör arama sistemi) bağlam (context) destekli sorulara cevap verilmesi.
-3. Ders motorunun (Lesson Engine) inşası.
+### PHASE 6: LLM & LESSON ENGINE - `[TAMAMLANDI]`
+- Soyut LLM sağlayıcı arayüzü (`BaseLLMProvider`) ve OpenAI uyumlu (`OpenAICompatibleProvider`) API istemcisi geliştirildi.
+- Lesson (Ders) ve LessonMessage (Ders Mesajları) için veritabanı modelleri oluşturuldu ve çoklu kiracı (multi-tenant) veri yalıtımı sağlandı.
+- Önceden oluşturulan Phase 2 (Yetkilendirme) ve Phase 5 (Vektörel Arama/RAG) sistemleri `LessonService` içinde orkestre edildi.
+- Sistem prompt'u oluşturucu modülü (`prompt.py`) ile vektörel arama sonuçları ve sohbet geçmişi LLM'ye iletilecek şekilde bağlandı.
+- Test senaryoları yazılarak tam yalıtımlı çalıştığı (`docker compose exec api pytest`) doğrulandı.
 
 ---
 
+### PHASE 7: WEBSOCKETS/SSE & FRONTEND - `[TAMAMLANDI]`
+- Backend tarafında Lesson Service için `stream_message_and_generate_response` metodu ile Server-Sent Events (SSE) altyapısı kuruldu.
+- Next.js (React) kullanılarak uygulamanın temel önyüzü (Frontend) geliştirildi (`apps/web`).
+- Login (`/login`), Organizasyon Seçimi (`/organizations`), Ders Listesi (`/lessons`) ekranları tamamlandı.
+- Ders içi gerçek zamanlı sohbet (Chat UI - `/lessons/[id]`) ekranı yapıldı; StreamingResponse entegre edildi.
+- **RAG UI (Belge Yükleme):** Chat ekranına 📎 butonu eklenerek kullanıcıların ders anında doğrudan PDF/TXT yüklemesi ve arka plan Celery işçisi üzerinden RAG (vektörleştirme) sürecinin tetiklenmesi sağlandı.
+
+### PHASE 8: AI SERVING & AVATAR (Local ML Models) - `[YAPIM AŞAMASINDA]`
+- Kullanıcının isteği doğrultusunda **tamamen yerel (local)** optimizasyon ve güvenlik hedeflenmiştir.
+- **RAG Katı Kurallar (Anti-Hallucination):** `prompt.py` içindeki sistem mesajı katılaştırılarak, LLM'nin sadece belgelerden cevap vermesi, genel kültür bilgisiyle dışarı çıkması (veya kod üretmesi) engellendi.
+- **Video Avatar Mimari Altyapısı:** `apps/api/app/modules/avatar/service.py` ve Docker Compose içerisine `avatar-worker` taslağı eklendi. (NVIDIA GPU pass-through ile local TTS / Wav2Lip için hazır hale getirildi).
+- **Not (Sıradaki Adım):** Projeyi devralan kişi, `avatar-worker` içerisindeki ML modellerini (Bark, SadTalker vb.) indirip bağlamalı veya alternatif ses/görüntü çözümleri (cloud dahil) uygulamalıdır.
+
 ## 💡 Notlar ve Uyarılar
+- `.env` dosyasında `LLM_BASE_URL="http://host.docker.internal:11434/v1"` ve `LLM_MODEL_NAME="qwen2.5:3b"` olarak ayarlanmıştır. Çalıştırmak için Docker'ın host'a erişebilmesi ve Ollama'da modelin inmiş olması gerekir.
 - Herhangi bir aşamaya geri dönüp değişiklik yapmadan önce mevcut testleri (`docker compose exec api pytest`) çalıştırdığınızdan emin olun.
+- Veritabanı model değişikliklerinde mutlaka Alembic migrasyonlarını oluşturun.
+- Uygulama çalışırken `docker compose up -d` komutuyla tüm container'ları (web ve api dahil) ayakta tutabilirsiniz. Worker container'ı `Celery` görevlerini işlemek (RAG vektorizasyonu) için kritiktir.
 - Veritabanı model değişikliklerinde mutlaka Alembic migrasyonlarını (`alembic revision --autogenerate -m "..."`) oluşturun.
 - Uygulama çalışırken `docker compose up -d` komutuyla tüm container'ları ayakta tutabilirsiniz. Worker container'ı `Celery` görevlerini işlemek için kritiktir.

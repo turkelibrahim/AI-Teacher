@@ -85,6 +85,14 @@ class Settings(BaseSettings):
 
     RETRIEVAL_TOP_K: int = 5
 
+    # LLM & Lesson Engine
+    LLM_API_KEY: str = "sk-dummy"
+    LLM_BASE_URL: str = "http://localhost:11434/v1"
+    LLM_MODEL_NAME: str = "llama3"
+    LLM_TIMEOUT: int = 60
+    LLM_MAX_TOKENS: int = 1024
+    LLM_TEMPERATURE: float = 0.7
+
     model_config = SettingsConfigDict(env_file=(".env", "../../.env"), env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()

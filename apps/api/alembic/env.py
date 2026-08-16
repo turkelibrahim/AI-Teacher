@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 from logging.config import fileConfig
 
 from sqlalchemy import pool
@@ -31,6 +31,7 @@ from app.modules.organization import models as org_models
 from app.modules.resource import models as resource_models
 from app.modules.ingestion import models as ingestion_models
 from app.modules.retrieval import models as retrieval_models
+from app.modules.lesson import models as lesson_models
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
