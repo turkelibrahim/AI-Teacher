@@ -30,6 +30,7 @@ from app.modules.identity import models as identity_models
 from app.modules.organization import models as org_models
 from app.modules.resource import models as resource_models
 from app.modules.ingestion import models as ingestion_models
+from app.modules.retrieval import models as retrieval_models
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
@@ -101,6 +102,7 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
+
 
 
 

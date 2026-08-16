@@ -1,4 +1,4 @@
-﻿FROM python:3.11-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -10,13 +10,13 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
 ENV PYTHONPATH=/app
+ENV HF_HOME=/app/.cache/huggingface
 
-CMD ["celery", "-A", "workers.app.celery_app", "worker", "--loglevel=info"]
-
-
-
+CMD ["celery", "-A", "workers.app", "worker", "--loglevel=info"]

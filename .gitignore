@@ -60,3 +60,8 @@ Thumbs.db
 # evidence - exclude output files except what's committed
 evidence/**/*.json
 !evidence/phase_0_1/
+
+.cache/
+.pytest_cache/
+apps/api/.cache/
+apps/api/.pytest_cache/

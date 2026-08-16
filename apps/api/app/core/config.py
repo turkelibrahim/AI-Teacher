@@ -1,9 +1,9 @@
-﻿from typing import List
+from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import AnyHttpUrl, validator
 
 class Settings(BaseSettings):
-    APP_NAME: str = "CanlÄ± Ã–ÄŸretmen AI"
+    APP_NAME: str = "Canlı Öğretmen AI"
     APP_ENV: str = "development"
     APP_DEBUG: bool = True
 
@@ -71,9 +71,24 @@ class Settings(BaseSettings):
     MAX_OFFICE_UNCOMPRESSED_BYTES: int = 50 * 1024 * 1024
     MAX_SINGLE_ENTRY_UNCOMPRESSED_BYTES: int = 10 * 1024 * 1024
 
+    # Retrieval & RAG
+    EMBEDDING_PROVIDER: str = "sentence-transformers"
+    EMBEDDING_MODEL: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    EMBEDDING_DIMENSION: int = 384
+    EMBEDDING_DEVICE: str = "cpu"
+    EMBEDDING_BATCH_SIZE: int = 16
+
+    CHUNK_TARGET_TOKENS: int = 96
+    CHUNK_OVERLAP_TOKENS: int = 16
+    CHUNK_MAX_TOKENS: int = 112
+    CHUNK_MIN_TOKENS: int = 24
+
+    RETRIEVAL_TOP_K: int = 5
+
     model_config = SettingsConfigDict(env_file=(".env", "../../.env"), env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()
+
 
 
 

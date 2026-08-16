@@ -25,3 +25,41 @@ async def clear_redis():
     redis = await get_redis()
     await redis.flushdb()
 
+
+
+from app.db.session import async_session_maker
+from sqlalchemy.ext.asyncio import AsyncSession
+import pytest_asyncio
+
+@pytest_asyncio.fixture(scope="function")
+async def db() -> AsyncSession:
+    async with async_session_maker() as session:
+        yield session
+
+
+import uuid
+
+@pytest.fixture
+def unique_email():
+    return f"test_{uuid.uuid4()}@example.com"
+
+@pytest.fixture
+def unique_email2():
+    return f"test_{uuid.uuid4()}@example.com"
+
+@pytest_asyncio.fixture
+async def setup_tenants(client, unique_email, unique_email2):
+    res_a = await client.post("/api/v1/auth/register", json={"email": unique_email, "password": "Password123!"})
+    token_a = res_a.json()["access_token"]
+    user_a_id = res_a.json()["user"]["id"]
+    
+    res_b = await client.post("/api/v1/auth/register", json={"email": unique_email2, "password": "Password123!"})
+    token_b = res_b.json()["access_token"]
+    
+    orgs_a = await client.get("/api/v1/organizations", headers={"Authorization": f"Bearer {token_a}"})
+    org_a_id = orgs_a.json()[0]["id"]
+    
+    orgs_b = await client.get("/api/v1/organizations", headers={"Authorization": f"Bearer {token_b}"})
+    org_b_id = orgs_b.json()[0]["id"]
+    
+    return token_a, user_a_id, org_a_id, token_b, org_b_id

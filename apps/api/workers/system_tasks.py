@@ -1,16 +1,15 @@
 ﻿import asyncio
-import uuid
 import logging
 import tempfile
-import traceback
+import uuid
+from celery import Celery
 from workers.app import celery_app
-from celery.exceptions import Retry
 from app.core.storage import ObjectStorage
 from app.modules.ingestion.repository import IngestionRepository
 from app.modules.resource.repository import ResourceRepository
 from app.modules.ingestion.extractors import get_extractor
 from app.modules.ingestion.extractors.errors import (
-    ExtractionError, CorruptedDocumentError, EncryptedDocumentError,
+    ExtractionError, CorruptedDocumentError,
     OcrRequiredError, LimitExceededError, ZipBombError, UnsupportedFormatError
 )
 from app.modules.ingestion.models import ResourceDocument, ResourcePage
@@ -25,7 +24,7 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-# These error codes are PERMANENT — do not retry
+# These error codes are PERMANENT - do not retry
 PERMANENT_ERROR_CODES = {
     "CORRUPTED_DOCUMENT",
     "ENCRYPTED_PDF",
@@ -130,6 +129,9 @@ async def _run_extraction(job_id: str, is_last_attempt: bool = False):
             )
             session.add(audit_log_complete)
             await session.commit()
+            
+            # Phase 5: Automatically queue an indexing job upon ingestion completion
+            process_resource_indexing.delay(str(job.id), str(job.organization_id))
 
         except ExtractionError as e:
             logger.error(f"Extraction error for job {job_id}: {e}")
@@ -191,27 +193,181 @@ async def _run_extraction(job_id: str, is_last_attempt: bool = False):
     acks_late=True
 )
 def process_resource_ingestion(self, job_id: str):
-    """
-    Celery task: extract a resource document.
-
-    Retry policy:
-    - Transient failures (DB/MinIO connectivity, unexpected errors): retry up to 3 times.
-    - Permanent failures (CORRUPTED_DOCUMENT, ENCRYPTED_PDF, OCR_REQUIRED, etc.): do NOT retry.
-    """
     is_last_attempt = self.request.retries >= self.max_retries
     try:
         asyncio.run(_run_extraction(job_id, is_last_attempt))
     except ExtractionError as e:
-        # Permanent errors — do not retry
         if e.code in PERMANENT_ERROR_CODES:
-            logger.warning(f"Permanent extraction failure for job {job_id}: {e.code} — not retrying")
+            logger.warning(f"Permanent extraction failure for job {job_id}: {e.code} - not retrying")
             return
-        # Transient extraction error — retry
-        logger.warning(f"Transient extraction error for job {job_id}: {e.code} — scheduling retry")
+        logger.warning(f"Transient extraction error for job {job_id}: {e.code} - scheduling retry")
         raise self.retry(exc=e)
     except Exception as e:
-        # Unexpected error — retry up to max_retries
-        logger.warning(f"Transient failure for job {job_id}: {e} — scheduling retry")
+        logger.warning(f"Transient failure for job {job_id}: {e} - scheduling retry")
         raise self.retry(exc=e)
 
+
+async def _run_indexing(ingestion_job_id: str, organization_id: str, is_last_attempt: bool = False):
+    from app.modules.retrieval.models import ResourceIndexingJob, ResourceChunk
+    from app.modules.retrieval.chunking import SemanticChunker
+    from app.modules.retrieval.embeddings import get_embedding_provider
+    from sqlalchemy.ext.asyncio import create_async_engine
+    from sqlalchemy.pool import NullPool
+    from sqlalchemy.ext.asyncio import async_sessionmaker
+    from sqlalchemy import select
+    from datetime import datetime, timezone
+    import uuid
+    import hashlib
+
+    job_uuid = uuid.UUID(ingestion_job_id)
+    org_uuid = uuid.UUID(organization_id)
+
+    engine = create_async_engine(
+        settings.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://"),
+        poolclass=NullPool
+    )
+    async_session = async_sessionmaker(engine, expire_on_commit=False)
+    
+    provider = get_embedding_provider()
+    chunker = SemanticChunker(
+        target_tokens=settings.CHUNK_TARGET_TOKENS,
+        max_tokens=settings.CHUNK_MAX_TOKENS,
+        overlap_tokens=settings.CHUNK_OVERLAP_TOKENS
+    )
+
+    async with async_session() as session:
+        # Check if already successfully indexed
+        stmt = select(ResourceIndexingJob).where(
+            ResourceIndexingJob.ingestion_job_id == job_uuid,
+            ResourceIndexingJob.status == "COMPLETED"
+        )
+        existing = await session.execute(stmt)
+        if existing.scalars().first():
+            logger.info(f"Ingestion {ingestion_job_id} already indexed successfully.")
+            await engine.dispose()
+            return
+
+        # Fetch ingestion job and pages
+        from app.modules.ingestion.models import ResourceIngestionJob, ResourcePage
+        stmt = select(ResourceIngestionJob).where(ResourceIngestionJob.id == job_uuid)
+        result = await session.execute(stmt)
+        ingestion_job = result.scalars().first()
+        if not ingestion_job:
+            await engine.dispose()
+            return
+            
+        indexing_job = ResourceIndexingJob(
+            organization_id=org_uuid,
+            resource_id=ingestion_job.resource_id,
+            ingestion_job_id=job_uuid,
+            requested_by_user_id=ingestion_job.requested_by_user_id,
+            status="PROCESSING",
+            embedding_model=settings.EMBEDDING_MODEL,
+            embedding_dimension=settings.EMBEDDING_DIMENSION,
+            chunk_target_tokens=settings.CHUNK_TARGET_TOKENS,
+            chunk_overlap_tokens=settings.CHUNK_OVERLAP_TOKENS,
+            started_at=datetime.now(timezone.utc)
+        )
+        session.add(indexing_job)
+        await session.flush()
+        
+        try:
+            stmt = select(ResourcePage).where(
+                ResourcePage.ingestion_job_id == job_uuid
+            ).order_by(ResourcePage.page_number)
+            pages = (await session.execute(stmt)).scalars().all()
+            
+            all_chunks = []
+            chunk_index = 0
+            
+            for page in pages:
+                texts = chunker.chunk_text(page.text)
+                for t in texts:
+                    if not t.strip():
+                        continue
+                    tokens = chunker.get_token_count(t)
+                    content_sha = hashlib.sha256(t.encode('utf-8')).hexdigest()
+                    
+                    chunk = ResourceChunk(
+                        organization_id=org_uuid,
+                        resource_id=ingestion_job.resource_id,
+                        ingestion_job_id=job_uuid,
+                        indexing_job_id=indexing_job.id,
+                        resource_page_id=page.id,
+                        chunk_index=chunk_index,
+                        page_number=page.page_number,
+                        page_label=page.page_label,
+                        text=t,
+                        character_count=len(t),
+                        token_count=tokens,
+                        embedding=None, # will fill later
+                        embedding_model=settings.EMBEDDING_MODEL,
+                        embedding_dimension=settings.EMBEDDING_DIMENSION,
+                        content_sha256=content_sha
+                    )
+                    all_chunks.append(chunk)
+                    chunk_index += 1
+                    
+            if all_chunks:
+                # batch embed
+                texts_to_embed = [c.text for c in all_chunks]
+                embeddings = provider.embed_documents(texts_to_embed)
+                
+                for c, emb in zip(all_chunks, embeddings):
+                    c.embedding = emb
+                    session.add(c)
+                    
+            indexing_job.status = "COMPLETED"
+            indexing_job.total_chunks = len(all_chunks)
+            indexing_job.completed_at = datetime.now(timezone.utc)
+            await session.commit()
+            
+            audit_log_complete = AuditLog(
+                organization_id=org_uuid,
+                user_id=ingestion_job.requested_by_user_id,
+                event_type="INDEXING_COMPLETED",
+                entity_type="RESOURCE_INDEXING_JOB",
+                entity_id=str(indexing_job.id)
+            )
+            session.add(audit_log_complete)
+            await session.commit()
+            
+        except Exception as e:
+            logger.error(f"Indexing failure: {e}")
+            await session.rollback()
+            if is_last_attempt:
+                indexing_job.status = "FAILED"
+                indexing_job.error_message = str(e)
+                indexing_job.failed_at = datetime.now(timezone.utc)
+                session.add(indexing_job)
+                
+                audit_log_fail = AuditLog(
+                    organization_id=org_uuid,
+                    user_id=ingestion_job.requested_by_user_id,
+                    event_type="INDEXING_FAILED",
+                    entity_type="RESOURCE_INDEXING_JOB",
+                    entity_id=str(indexing_job.id)
+                )
+                session.add(audit_log_fail)
+                
+                await session.commit()
+            raise
+        finally:
+            await engine.dispose()
+
+@celery_app.task(
+    name="system.process_resource_indexing",
+    bind=True,
+    max_retries=3,
+    default_retry_delay=10,
+    acks_late=True
+)
+def process_resource_indexing(self, ingestion_job_id: str, organization_id: str):
+    is_last_attempt = self.request.retries >= self.max_retries
+    try:
+        import asyncio
+        asyncio.run(_run_indexing(ingestion_job_id, organization_id, is_last_attempt))
+    except Exception as e:
+        logger.warning(f"Transient failure for indexing job {ingestion_job_id}: {e} - scheduling retry")
+        raise self.retry(exc=e)
 
